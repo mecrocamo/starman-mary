@@ -231,7 +231,7 @@
   var filterStatus = "all";
   var READONLY = false;
   var artifact = null;
-  var localMode = false;
+  var bannerMsg = "";
   var syncState = "connecting";
 
   function normalize(){
@@ -285,7 +285,7 @@
     html += head();
     html += overview(c,total,complete,pct);
     html += controls();
-    html += '<div class="readonly-banner">You have view-only access — status changes won’t be shared. Ask the owner for edit access to update the board.</div>';
+    html += '<div class="readonly-banner">'+esc(bannerMsg)+'</div>';
     html += list();
     html += foot();
     root.innerHTML = html;
@@ -440,8 +440,7 @@
     switch(syncState){
       case "saving":    return {cls:"is-saving",text:"Saving…"};
       case "saved":     return {cls:"is-saved",text:"Saved · shared live"};
-      case "localidle": return {cls:"is-local",text:"On this device only — not shared"};
-      case "localsaved":return {cls:"is-local",text:"Saved on this device"};
+      case "snapshot":  return {cls:"is-readonly",text:"Read-only snapshot"};
       case "readonly":  return {cls:"is-readonly",text:"View only"};
       case "error":     return {cls:"is-error",text:"Couldn’t save"};
       default:          return {cls:"",text:"Connecting…"};
@@ -473,26 +472,12 @@
       + '</body>\n</html>';
   }
 
-  function loadLocal(){
-    try{
-      var raw=localStorage.getItem("sbt-state");
-      if(raw){ var s=JSON.parse(raw); if(s&&Array.isArray(s.items)){ STATE=s; normalize(); return true; } }
-    }catch(e){}
-    return false;
-  }
-  function saveLocal(){ try{ localStorage.setItem("sbt-state",JSON.stringify(STATE)); return true; }catch(e){ return false; } }
-
   var saveTimer=null, savePending=false, saving=false;
   function save(){
-    if(READONLY) return;
-    if(artifact){
-      savePending=true; setSync("saving");
-      if(saveTimer) clearTimeout(saveTimer);
-      saveTimer=setTimeout(flush,400);
-      return;
-    }
-    if(localMode){ setSync(saveLocal()?"localsaved":"error"); return; }
-    setSync("localidle");
+    if(READONLY || !artifact) return;
+    savePending=true; setSync("saving");
+    if(saveTimer) clearTimeout(saveTimer);
+    saveTimer=setTimeout(flush,400);
   }
   function flush(){
     if(!artifact||saving||!savePending) return;
@@ -507,17 +492,24 @@
       var code=(err&&(err.code||err.name)||"").toString();
       if(code==="conflict"){ setSync("saved"); }
       else if(code==="not_granted"||code==="not_writer"){
-        READONLY=true; document.body.classList.add("readonly"); setSync("readonly"); render();
+        READONLY=true; document.body.classList.add("readonly");
+        bannerMsg="View-only access — status changes here aren’t saved or shared.";
+        setSync("readonly"); render();
       } else { setSync("error"); }
     });
   }
 
   /* ---------- boot ---------- */
   function goLocal(){
-    localMode=true;
-    var had=loadLocal();
+    // No shared runtime (e.g. the static GitHub Pages copy): render the committed
+    // content read-only. The live, shared board is the Claude artifact. Clear any
+    // state a previous version saved on this device so it can't mask the content.
+    try{ localStorage.removeItem("sbt-state"); }catch(e){}
+    READONLY=true;
+    document.body.classList.add("readonly");
+    bannerMsg="Read-only snapshot of the board — changes here aren’t saved or shared. The live, shared board is the Starman Process V0 artifact.";
     render();
-    setSync(had?"localsaved":"localidle");
+    setSync("snapshot");
   }
 
   render();
