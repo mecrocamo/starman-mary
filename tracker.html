@@ -262,22 +262,22 @@
 
 <script id="app-state" type="application/json">
 {
-  "meta": {"updatedAt": null},
+  "meta": {"updatedAt": "2026-08-28T18:10:28.290Z"},
   "items": [
-    {"id":"tc","team":"pdm","title":"Ticket Creator Skill","status":"testing","owner":"","priority":true,
+    {"id":"tc","teams":["pdm"],"title":"Ticket Creator Skill","status":"progress","owner":"","priority":true,
      "note":"The only item on the board already built — it just needs validation and distribution.",
      "subs":[{"t":"Finish testing the skill","done":false},{"t":"Publish to the GitHub marketplace","done":false}]},
-    {"id":"ua","team":"pdm","title":"Usage Analytics Review Skill","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
-    {"id":"in","team":"pdm","title":"Introspect Skill","status":"scoping","owner":"","priority":false,
+    {"id":"ua","teams":["pdm"],"title":"Usage Analytics Review Skill","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
+    {"id":"in","teams":["pdm"],"title":"Introspect Skill","status":"scoping","owner":"","priority":false,
      "note":"Define the skill that has Claude review the overall project and feed suggested opportunities into the project retrospective. Pair with Agent Retrospective (#9) so the two don't overlap.","subs":[]},
-    {"id":"uat","team":"eng","title":"UAT Report Skill & Standards","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
-    {"id":"ss","team":"eng","title":"Service Stability Skill","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
-    {"id":"obs","team":"eng","title":"Observability GitHub Pages Feature","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
-    {"id":"dv","team":"dsgn","title":"Design Versioning Process Documentation","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
-    {"id":"cc","team":"cross","title":"Code Connect","status":"notstarted","owner":"","priority":false,"tag":"Eng + Dsgn",
-     "note":"Stand up Code Connect with a working prototype as the output.","subs":[]},
-    {"id":"ar","team":"cross","title":"Agent Retrospective","status":"notstarted","owner":"TBD","priority":false,"tag":"owner TBD",
-     "note":"AI observing work and adding items to the backlog. Pair with the Introspect Skill (#3).","subs":[]}
+    {"id":"uat","teams":["eng"],"title":"UAT Report Skill & Standards","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
+    {"id":"ss","teams":["eng"],"title":"Service Stability Skill","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
+    {"id":"obs","teams":["eng"],"title":"Observability GitHub Pages Feature","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
+    {"id":"dv","teams":["dsgn"],"title":"Design Versioning Process Documentation","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
+    {"id":"cc","teams":["eng","dsgn"],"title":"Code Connect","status":"notstarted","owner":"","priority":false,
+     "note":"Stand up Code Connect with a working prototype as the output. A joint Engineering + Design effort.","subs":[]},
+    {"id":"ar","teams":["pdm"],"title":"Agent Retrospective","status":"notstarted","owner":"PdM","priority":false,
+     "note":"AI observing work and adding items to the backlog. Owned by PdM for now. Pair with the Introspect Skill (#3).","subs":[]}
   ]
 }
 </script>
@@ -298,10 +298,9 @@
   var TEAMS = {
     pdm:  {name:"PdM",  full:"Product Management", color:"#4F46E5", soft:"rgba(79,70,229,.12)"},
     eng:  {name:"Eng",  full:"Engineering",        color:"#0B8AA6", soft:"rgba(11,138,166,.13)"},
-    dsgn: {name:"Dsgn", full:"Design",             color:"#C0267E", soft:"rgba(192,38,126,.12)"},
-    cross:{name:"Cross",full:"Cross-team",         color:"#B5730B", soft:"rgba(181,115,11,.14)"}
+    dsgn: {name:"Dsgn", full:"Design",             color:"#C0267E", soft:"rgba(192,38,126,.12)"}
   };
-  var TEAM_ORDER = ["pdm","eng","dsgn","cross"];
+  var TEAM_ORDER = ["pdm","eng","dsgn"];
 
   var stateEl = document.getElementById("app-state");
   var root = document.getElementById("root");
@@ -312,7 +311,20 @@
   var query = "";
   var READONLY = false;
   var artifact = null;
+  var localMode = false;
   var syncState = "connecting";
+
+  function normalize(){
+    (STATE.items||[]).forEach(function(it){
+      if(!Array.isArray(it.teams)) it.teams = it.team ? [it.team] : ["pdm"];
+      it.teams = it.teams.filter(function(t){ return t in TEAMS; });
+      if(!it.teams.length) it.teams = ["pdm"];
+      if(!Array.isArray(it.subs)) it.subs = [];
+      delete it.team; delete it.tag;
+    });
+    if(!STATE.meta) STATE.meta = {};
+  }
+  normalize();
 
   /* ---------- helpers ---------- */
   function esc(s){
@@ -365,7 +377,7 @@
     +   '<div>'
     +     '<div class="eyebrow">Skills &amp; tooling roadmap</div>'
     +     '<h1>Skills Build Tracker</h1>'
-    +     '<p class="lede">Where every skill, feature, and process on the roadmap stands — across Product, Engineering, Design, and cross-team work. Change a status, claim an owner, tick off steps; everyone sees the same live board.</p>'
+    +     '<p class="lede">Where every skill, feature, and process on the roadmap stands — across Product, Engineering, and Design. Filter by a team to see everything it touches, including cross-team collaborations. Change a status, claim an owner, tick off the steps.</p>'
     +   '</div>'
     +   '<div class="head-tools">'
     +     '<div class="sync '+s.cls+'" id="sync"><span class="dot"></span>'+esc(s.text)+'</div>'
@@ -418,43 +430,64 @@
     + '</div>';
   }
 
+  function hasTeam(it,t){ return (it.teams||[]).indexOf(t)>=0; }
+  function primary(it){ return (it.teams&&it.teams[0])||"pdm"; }
+
   function matches(it){
-    if(filterTeam!=="all" && it.team!==filterTeam) return false;
     if(filterStatus!=="all" && it.status!==filterStatus) return false;
     if(query){
       var q=query.toLowerCase();
-      var hay=(it.title+" "+(it.note||"")+" "+(it.owner||"")+" "+(it.tag||"")).toLowerCase();
+      var names=(it.teams||[]).map(function(t){ return TEAMS[t]?TEAMS[t].name+" "+TEAMS[t].full:""; }).join(" ");
+      var hay=(it.title+" "+(it.note||"")+" "+(it.owner||"")+" "+names).toLowerCase();
       if(hay.indexOf(q)<0) return false;
     }
     return true;
   }
 
+  function groupSection(t,items,totalInTeam,filtering,filteredView){
+    var tm=TEAMS[t];
+    var count = filteredView ? items.length+" shown"
+              : items.length + (filtering ? " shown" : " of "+totalInTeam);
+    var out='<section class="group" style="--team:'+tm.color+';--team-soft:'+tm.soft+'">';
+    out+= '<div class="group-head"><span class="tick"></span>'
+        + '<span class="gname">'+esc(tm.full)+'</span>'
+        + '<span class="gfull mono">'+esc(tm.name)+'</span>'
+        + '<span class="gcount">'+count+'</span></div>';
+    if(!items.length) out+='<div class="empty">No items match the current filters.</div>';
+    var idxOf=window.__idxOf;
+    items.forEach(function(it){ out+=itemCard(it,idxOf[it.id]); });
+    if(!READONLY && !filtering)
+      out+='<button class="additem" data-act="additem" data-team="'+t+'">+ Add item to '+esc(tm.name)+'</button>';
+    out+='</section>';
+    return out;
+  }
+
   function list(){
     var idxOf={}; STATE.items.forEach(function(it,i){ idxOf[it.id]=i+1; });
+    window.__idxOf = idxOf;
+    var filtering = !!(query || filterStatus!=="all");
+
+    // Filtering by a team shows every item that team touches — including
+    // cross-team collaborations whose primary group sits elsewhere.
+    if(filterTeam!=="all"){
+      var items=STATE.items.filter(function(it){ return hasTeam(it,filterTeam) && matches(it); });
+      return groupSection(filterTeam,items,items.length,filtering,true);
+    }
+
     var out="", any=false;
     TEAM_ORDER.forEach(function(t){
-      if(filterTeam!=="all" && filterTeam!==t) return;
-      var items=STATE.items.filter(function(it){ return it.team===t && matches(it); });
-      var totalInTeam=STATE.items.filter(function(it){return it.team===t;}).length;
-      if(!items.length && (query||filterStatus!=="all")) return; // hide empty groups when filtering
+      var items=STATE.items.filter(function(it){ return primary(it)===t && matches(it); });
+      var totalInTeam=STATE.items.filter(function(it){ return primary(it)===t; }).length;
+      if(!items.length && filtering) return;
       any = any || items.length>0;
-      var tm=TEAMS[t];
-      out+='<section class="group" style="--team:'+tm.color+';--team-soft:'+tm.soft+'">';
-      out+= '<div class="group-head"><span class="tick"></span>'
-          + '<span class="gname">'+esc(tm.full)+'</span>'
-          + '<span class="gfull mono">'+esc(tm.name)+'</span>'
-          + '<span class="gcount">'+items.length+(query||filterStatus!=="all"?" shown":" of "+totalInTeam)+'</span></div>';
-      items.forEach(function(it){ out+=itemCard(it,idxOf[it.id]); });
-      if(!READONLY && !(query||filterStatus!=="all"))
-        out+='<button class="additem" data-act="additem" data-team="'+t+'">+ Add item to '+esc(tm.name)+'</button>';
-      out+='</section>';
+      out+=groupSection(t,items,totalInTeam,filtering,false);
     });
     if(!any) out='<div class="empty">No items match the current filters.</div>';
     return out;
   }
 
   function itemCard(it,idx){
-    var tm=TEAMS[it.team]||TEAMS.cross;
+    var tm=TEAMS[primary(it)]||TEAMS.pdm;
     var done = it.status==="shipped";
     var num = ("0"+idx).slice(-2);
 
@@ -474,8 +507,12 @@
     subs+='<div class="subadd"><span class="plus">+</span>'
         + '<input type="text" data-act="subadd" data-id="'+it.id+'" data-focus="subadd-'+it.id+'" placeholder="Add a step…"></div>';
 
-    var meta='<span class="teamtag">'+esc(tm.name)+'</span>';
-    if(it.tag) meta+='<span class="subteam">'+esc(it.tag)+'</span>';
+    var meta="";
+    (it.teams||[]).forEach(function(tk){
+      var t=TEAMS[tk]; if(!t) return;
+      meta+='<span class="teamtag" style="color:'+t.color+';background:'+t.soft+'">'+esc(t.name)+'</span>';
+    });
+    if((it.teams||[]).length>1) meta+='<span class="subteam">collaboration</span>';
     if(it.priority) meta+='<span class="prio"><span class="fl"></span>Priority</span>';
 
     return ''
@@ -570,9 +607,9 @@
       return; }
     if(act==="additem"){
       var team=b.getAttribute("data-team");
-      var it2={id:uid(),team:team,title:"",status:"notstarted",owner:"",priority:false,note:"",subs:[]};
+      var it2={id:uid(),teams:[team],title:"",status:"notstarted",owner:"",priority:false,note:"",subs:[]};
       // insert after last item of this team to keep grouping order tidy
-      var lastIdx=-1; STATE.items.forEach(function(x,i){ if(x.team===team) lastIdx=i; });
+      var lastIdx=-1; STATE.items.forEach(function(x,i){ if(primary(x)===team) lastIdx=i; });
       if(lastIdx<0) STATE.items.push(it2); else STATE.items.splice(lastIdx+1,0,it2);
       touch(); render(); save();
       var nf=root.querySelector('[data-focus="title-'+it2.id+'"]'); if(nf) nf.focus();
@@ -617,12 +654,13 @@
   /* ---------- sync indicator ---------- */
   function syncMeta(){
     switch(syncState){
-      case "saving":   return {cls:"is-saving",text:"Saving…"};
-      case "saved":    return {cls:"is-saved",text:"Saved · shared live"};
-      case "local":    return {cls:"is-local",text:"Not connected — changes stay on this screen"};
-      case "readonly": return {cls:"is-readonly",text:"View only"};
-      case "error":    return {cls:"is-error",text:"Couldn’t save"};
-      default:         return {cls:"",text:"Connecting…"};
+      case "saving":    return {cls:"is-saving",text:"Saving…"};
+      case "saved":     return {cls:"is-saved",text:"Saved · shared live"};
+      case "localidle": return {cls:"is-local",text:"On this device only — not shared"};
+      case "localsaved":return {cls:"is-local",text:"Saved on this device"};
+      case "readonly":  return {cls:"is-readonly",text:"View only"};
+      case "error":     return {cls:"is-error",text:"Couldn’t save"};
+      default:          return {cls:"",text:"Connecting…"};
     }
   }
   function setSync(s){
@@ -651,13 +689,27 @@
       + '</body>\n</html>';
   }
 
+  function loadLocal(){
+    try{
+      var raw=localStorage.getItem("sbt-state");
+      if(raw){ var s=JSON.parse(raw); if(s&&Array.isArray(s.items)){ STATE=s; normalize(); return true; } }
+    }catch(e){}
+    return false;
+  }
+  function saveLocal(){ try{ localStorage.setItem("sbt-state",JSON.stringify(STATE)); return true; }catch(e){ return false; } }
+
   var saveTimer=null, savePending=false, saving=false;
   function save(){
-    if(READONLY || !artifact){ if(!artifact) setSync("local"); return; }
-    savePending=true;
-    setSync("saving");
-    if(saveTimer) clearTimeout(saveTimer);
-    saveTimer=setTimeout(flush,500);
+    if(READONLY) return;
+    if(artifact){
+      savePending=true;
+      setSync("saving");
+      if(saveTimer) clearTimeout(saveTimer);
+      saveTimer=setTimeout(flush,500);
+      return;
+    }
+    if(localMode){ setSync(saveLocal()?"localsaved":"error"); return; }
+    setSync("localidle"); // capability still resolving; keep the edit in memory
   }
   function flush(){
     if(!artifact||saving||!savePending) return;
@@ -680,13 +732,20 @@
   }
 
   /* ---------- boot ---------- */
+  function goLocal(){
+    localMode=true;
+    var had=loadLocal();
+    render();
+    setSync(had?"localsaved":"localidle");
+  }
+
   render();
   (function connect(){
-    if(!(window.claude&&typeof window.claude.use==="function")){ setSync("local"); return; }
+    if(!(window.claude&&typeof window.claude.use==="function")){ goLocal(); return; }
     window.claude.use("artifact").then(function(ns){
-      artifact=ns;
-      setSync(ns? "saved":"local");
-    }).catch(function(){ setSync("local"); });
+      if(ns){ artifact=ns; setSync("saved"); }
+      else { goLocal(); }
+    }).catch(function(){ goLocal(); });
   })();
 })();
 </script>
