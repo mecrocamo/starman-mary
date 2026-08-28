@@ -15,10 +15,10 @@
     --accent:#2F55E0; --accent-soft:#E6ECFD; --accent-line:#C4D2FA;
     --shadow:0 1px 2px rgba(20,30,55,.05), 0 2px 6px rgba(20,30,55,.05);
     --shadow-lift:0 6px 20px rgba(20,30,55,.11);
-    --focus:#2F55E0; --neutral:#8792A6;
-    /* status: not started = red, in testing = yellow (per team convention) */
-    --s-notstarted:#CF2A2A; --s-scoping:#7A3CEA; --s-progress:#2F6FE0;
-    --s-testing:#9A7B0A;    --s-shipped:#127A3B; --s-blocked:#C21B6B;
+    --focus:#2F55E0; --neutral:#8792A6; --ok:#2E9E5B;
+    /* two states: complete = yellow, incomplete = red */
+    --s-complete:#9A7A08;   --s-complete-bg:#FBF1CE;   --s-complete-line:#ECDA9A;
+    --s-incomplete:#CF2A2A; --s-incomplete-bg:#FBE2E2; --s-incomplete-line:#F3C4C4;
   }
   @media (prefers-color-scheme:dark){
     :root:not([data-theme="light"]){
@@ -27,9 +27,9 @@
       --line:#252E3C; --line-2:#1E2632;
       --accent:#6E90FF; --accent-soft:#1A263F; --accent-line:#2C3D63;
       --shadow:0 1px 2px rgba(0,0,0,.35); --shadow-lift:0 8px 26px rgba(0,0,0,.5);
-      --focus:#6E90FF; --neutral:#7C8698;
-      --s-notstarted:#F07171; --s-scoping:#B597F8; --s-progress:#6E90FF;
-      --s-testing:#E3B341;    --s-shipped:#54C283; --s-blocked:#F272A8;
+      --focus:#6E90FF; --neutral:#7C8698; --ok:#54C283;
+      --s-complete:#E3B341;   --s-complete-bg:#322810;   --s-complete-line:#4A3C1A;
+      --s-incomplete:#F07171; --s-incomplete-bg:#361A1A; --s-incomplete-line:#5A2A2A;
     }
   }
   :root[data-theme="dark"]{
@@ -38,9 +38,9 @@
     --line:#252E3C; --line-2:#1E2632;
     --accent:#6E90FF; --accent-soft:#1A263F; --accent-line:#2C3D63;
     --shadow:0 1px 2px rgba(0,0,0,.35); --shadow-lift:0 8px 26px rgba(0,0,0,.5);
-    --focus:#6E90FF; --neutral:#7C8698;
-    --s-notstarted:#F07171; --s-scoping:#B597F8; --s-progress:#6E90FF;
-    --s-testing:#E3B341;    --s-shipped:#54C283; --s-blocked:#F272A8;
+    --focus:#6E90FF; --neutral:#7C8698; --ok:#54C283;
+    --s-complete:#E3B341;   --s-complete-bg:#322810;   --s-complete-line:#4A3C1A;
+    --s-incomplete:#F07171; --s-incomplete-bg:#361A1A; --s-incomplete-line:#5A2A2A;
   }
 
   body{
@@ -66,11 +66,11 @@
     background:var(--panel);border:1px solid var(--line);border-radius:100px;
     padding:6px 12px 6px 11px;box-shadow:var(--shadow);white-space:nowrap}
   .sync .dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3);flex-shrink:0}
-  .sync.is-saved .dot{background:var(--s-shipped)}
-  .sync.is-saving .dot{background:var(--s-testing);animation:pulse 1s infinite}
-  .sync.is-local .dot{background:var(--s-testing)}
-  .sync.is-readonly .dot{background:var(--s-scoping)}
-  .sync.is-error .dot{background:var(--s-notstarted)}
+  .sync.is-saved .dot{background:var(--ok)}
+  .sync.is-saving .dot{background:var(--accent);animation:pulse 1s infinite}
+  .sync.is-local .dot{background:var(--accent)}
+  .sync.is-readonly .dot{background:var(--ink-3)}
+  .sync.is-error .dot{background:var(--s-incomplete)}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
   .toolbtn{font:inherit;font-size:12px;color:var(--ink-2);cursor:pointer;
@@ -79,36 +79,36 @@
   .toolbtn:hover{color:var(--ink);border-color:var(--ink-3)}
   .head-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
-  /* ---- overview ---- */
+  /* ---- overview (doubles as the color key) ---- */
   .overview{margin-top:28px;background:var(--panel);border:1px solid var(--line);
     border-radius:16px;padding:22px 24px;box-shadow:var(--shadow)}
   .ov-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
   .ov-big{font-family:"IBM Plex Serif",serif;font-size:22px;font-weight:600}
-  .ov-big b{color:var(--s-shipped)}
+  .ov-big b{color:var(--s-complete)}
   .ov-pct{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-2);
     font-variant-numeric:tabular-nums}
 
   .bar{display:flex;height:12px;border-radius:100px;overflow:hidden;margin-top:16px;
     background:var(--panel-3);gap:2px}
   .bar span{display:block;min-width:3px;transition:flex-basis .4s ease}
-  .seg-notstarted{background:var(--s-notstarted)} .seg-scoping{background:var(--s-scoping)}
-  .seg-progress{background:var(--s-progress)} .seg-testing{background:var(--s-testing)}
-  .seg-shipped{background:var(--s-shipped)} .seg-blocked{background:var(--s-blocked)}
+  .seg-complete{background:var(--s-complete)} .seg-incomplete{background:var(--s-incomplete)}
 
-  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:18px}
-  .lchip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2)}
-  .lchip .sw{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:18px}
+  .lchip{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2)}
+  .lchip .sw{width:10px;height:10px;border-radius:3px;flex-shrink:0}
   .lchip b{color:var(--ink);font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
 
-  /* ---- team (owner) filter ---- */
-  .controls{margin-top:26px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-  .controls .flabel{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
-    text-transform:uppercase;color:var(--ink-3);margin-right:4px}
+  /* ---- filters ---- */
+  .controls{margin-top:24px;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+  .fgroup{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .flabel{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-3);margin-right:2px}
   .tchip{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.02em;cursor:pointer;
     background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 12px;
-    color:var(--ink-2);transition:.12s}
+    color:var(--ink-2);transition:.12s;display:inline-flex;align-items:center;gap:7px}
   .tchip:hover{color:var(--ink);border-color:var(--ink-3)}
   .tchip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .tchip .sw{width:8px;height:8px;border-radius:2px}
 
   /* ---- phase group ---- */
   .group{margin-top:30px}
@@ -121,10 +121,9 @@
     color:var(--ink-3);font-variant-numeric:tabular-nums}
 
   /* ---- item ---- */
-  .item{display:grid;grid-template-columns:1fr 176px;gap:16px;align-items:center;
+  .item{display:grid;grid-template-columns:1fr 168px;gap:16px;align-items:center;
     background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--team);
     border-radius:13px;padding:14px 20px;margin-top:8px;box-shadow:var(--shadow)}
-  .item.done{opacity:.68}
   .body{min-width:0}
   .title{font-size:15.5px;font-weight:600;color:var(--ink);letter-spacing:-.005em;display:block}
   .metarow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
@@ -132,17 +131,16 @@
     text-transform:uppercase;border-radius:5px;padding:3px 7px}
   .subteam{font-size:11.5px;color:var(--ink-3);font-style:italic}
 
-  /* ---- status (the one interactive control) ---- */
-  select.status{font:inherit;font-weight:600;font-size:12.5px;cursor:pointer;appearance:none;
-    -webkit-appearance:none;border-radius:9px;padding:9px 30px 9px 13px;width:100%;
-    background-color:var(--panel-2);background-repeat:no-repeat;background-position:right 11px center;
+  /* ---- status: the one interactive control ---- */
+  /* legible ink text (matches item titles), on a soft status-colored fill */
+  select.status{font:inherit;font-weight:600;font-size:12.5px;color:var(--ink);cursor:pointer;
+    appearance:none;-webkit-appearance:none;border-radius:9px;padding:9px 30px 9px 13px;width:100%;
+    background-repeat:no-repeat;background-position:right 11px center;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23888' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E');
-    border:1px solid var(--line-2)}
-  select.status:hover{border-color:var(--line)}
+    border:1px solid transparent}
   select.status:focus{outline:2px solid var(--focus);outline-offset:1px}
-  .st-notstarted{color:var(--s-notstarted)} .st-scoping{color:var(--s-scoping)}
-  .st-progress{color:var(--s-progress)} .st-testing{color:var(--s-testing)}
-  .st-shipped{color:var(--s-shipped)} .st-blocked{color:var(--s-blocked)}
+  .fill-complete{background-color:var(--s-complete-bg);border-color:var(--s-complete-line)}
+  .fill-incomplete{background-color:var(--s-incomplete-bg);border-color:var(--s-incomplete-line)}
   select.status option{color:var(--ink);background:var(--panel)}
 
   .empty{text-align:center;color:var(--ink-3);font-size:14px;padding:56px 0}
@@ -173,28 +171,28 @@
 {
   "meta": {"updatedAt": null},
   "items": [
-    {"id":"crq","phase":"frame","teams":["pdm"],"title":"Core Requirements Skill","status":"testing"},
+    {"id":"crq","phase":"frame","teams":["pdm"],"title":"Core Requirements Skill","status":"complete"},
 
-    {"id":"ufd","phase":"shape","teams":["dsgn"],"title":"User Flow Diagrams Skill","status":"testing"},
-    {"id":"fig","phase":"shape","teams":["dsgn"],"title":"Figma AI, Claude + Mobbin","status":"testing"},
-    {"id":"dsys","phase":"shape","teams":["dsgn"],"title":"Design Systems","status":"testing"},
-    {"id":"tts","phase":"shape","teams":["dsgn"],"title":"TTS Standards","status":"testing"},
-    {"id":"dv","phase":"shape","teams":["dsgn"],"title":"Design Versioning","status":"notstarted"},
-    {"id":"cc","phase":"shape","teams":["eng","dsgn"],"title":"Code Connect","status":"notstarted"},
+    {"id":"ufd","phase":"shape","teams":["dsgn"],"title":"User Flow Diagrams Skill","status":"complete"},
+    {"id":"fig","phase":"shape","teams":["dsgn"],"title":"Figma AI, Claude + Mobbin","status":"complete"},
+    {"id":"dsys","phase":"shape","teams":["dsgn"],"title":"Design Systems","status":"complete"},
+    {"id":"tts","phase":"shape","teams":["dsgn"],"title":"TTS Standards","status":"complete"},
+    {"id":"dv","phase":"shape","teams":["dsgn"],"title":"Design Versioning","status":"incomplete"},
+    {"id":"cc","phase":"shape","teams":["eng","dsgn"],"title":"Code Connect","status":"incomplete"},
 
-    {"id":"tc","phase":"plan","teams":["pdm"],"title":"Ticket Creator Skill","status":"notstarted"},
+    {"id":"tc","phase":"plan","teams":["pdm"],"title":"Ticket Creator Skill","status":"incomplete"},
 
-    {"id":"plan","phase":"build","teams":["eng"],"title":"Plan Skill","status":"testing"},
-    {"id":"loop","phase":"build","teams":["eng"],"title":"Loop Skill","status":"testing"},
-    {"id":"obs","phase":"build","teams":["eng"],"title":"Observability Feature – GitHub Pages Integration","status":"notstarted"},
+    {"id":"plan","phase":"build","teams":["eng"],"title":"Plan Skill","status":"complete"},
+    {"id":"loop","phase":"build","teams":["eng"],"title":"Loop Skill","status":"complete"},
+    {"id":"obs","phase":"build","teams":["eng"],"title":"Observability Feature – GitHub Pages Integration","status":"incomplete"},
 
-    {"id":"mqa","phase":"ship","teams":["eng"],"title":"Manual QA Testing","status":"testing"},
-    {"id":"uat","phase":"ship","teams":["eng"],"title":"User Acceptance Testing Report Skill & Standards","status":"notstarted"},
-    {"id":"ar","phase":"ship","teams":[],"title":"Agent Retrospective","status":"notstarted"},
+    {"id":"mqa","phase":"ship","teams":["eng"],"title":"Manual QA Testing","status":"complete"},
+    {"id":"uat","phase":"ship","teams":["eng"],"title":"User Acceptance Testing Report Skill & Standards","status":"incomplete"},
+    {"id":"ar","phase":"ship","teams":[],"title":"Agent Retrospective","status":"incomplete"},
 
-    {"id":"ss","phase":"observe","teams":["eng"],"title":"Observe Service Stability Skill","status":"notstarted"},
-    {"id":"ua","phase":"observe","teams":["pdm"],"title":"Usage Analytics Review Skill","status":"notstarted"},
-    {"id":"in","phase":"observe","teams":["pdm"],"title":"Introspect Skill","status":"notstarted"}
+    {"id":"ss","phase":"observe","teams":["eng"],"title":"Observe Service Stability Skill","status":"incomplete"},
+    {"id":"ua","phase":"observe","teams":["pdm"],"title":"Usage Analytics Review Skill","status":"incomplete"},
+    {"id":"in","phase":"observe","teams":["pdm"],"title":"Introspect Skill","status":"incomplete"}
   ]
 }
 </script>
@@ -204,14 +202,10 @@
   "use strict";
 
   var STATUS = {
-    notstarted:{label:"Not started",cls:"st-notstarted",seg:"seg-notstarted",sw:"--s-notstarted"},
-    scoping:   {label:"Scoping",    cls:"st-scoping",   seg:"seg-scoping",   sw:"--s-scoping"},
-    progress:  {label:"In progress",cls:"st-progress",  seg:"seg-progress",  sw:"--s-progress"},
-    testing:   {label:"In testing", cls:"st-testing",   seg:"seg-testing",   sw:"--s-testing"},
-    shipped:   {label:"Shipped",    cls:"st-shipped",   seg:"seg-shipped",   sw:"--s-shipped"},
-    blocked:   {label:"Blocked",    cls:"st-blocked",   seg:"seg-blocked",   sw:"--s-blocked"}
+    complete:  {label:"Complete",   fill:"fill-complete",   seg:"seg-complete",   sw:"--s-complete"},
+    incomplete:{label:"Incomplete", fill:"fill-incomplete", seg:"seg-incomplete", sw:"--s-incomplete"}
   };
-  var STATUS_KEYS = ["notstarted","scoping","progress","testing","shipped","blocked"];
+  var STATUS_KEYS = ["complete","incomplete"];
 
   var PHASES = {
     frame:  {name:"Frame"},
@@ -235,6 +229,7 @@
   var STATE = JSON.parse(stateEl.textContent);
 
   var filterTeam = "all";
+  var filterStatus = "all";
   var READONLY = false;
   var artifact = null;
   var localMode = false;
@@ -245,6 +240,8 @@
       if(!Array.isArray(it.teams)) it.teams = it.team ? [it.team] : [];
       it.teams = it.teams.filter(function(t){ return t in TEAMS; });
       if(!(it.phase in PHASES)) it.phase = PHASE_ORDER[0];
+      // collapse any legacy statuses to the two-state model
+      it.status = (it.status==="complete"||it.status==="shipped") ? "complete" : "incomplete";
     });
     if(!STATE.meta) STATE.meta = {};
   }
@@ -260,7 +257,7 @@
   function teamColor(it){ var t=it.teams&&it.teams[0]; return (t&&TEAMS[t])?TEAMS[t].color:"var(--neutral)"; }
   function hasTeam(it,t){ return (it.teams||[]).indexOf(t)>=0; }
   function counts(){
-    var c={}; STATUS_KEYS.forEach(function(k){c[k]=0;});
+    var c={complete:0,incomplete:0};
     STATE.items.forEach(function(it){ if(c[it.status]==null)c[it.status]=0; c[it.status]++; });
     return c;
   }
@@ -272,17 +269,22 @@
              d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
     }catch(e){ return "recently"; }
   }
+  function matches(it){
+    if(filterTeam!=="all" && !hasTeam(it,filterTeam)) return false;
+    if(filterStatus!=="all" && it.status!==filterStatus) return false;
+    return true;
+  }
 
   /* ---------- rendering ---------- */
   function render(){
     var c = counts();
     var total = STATE.items.length;
-    var shipped = c.shipped||0;
-    var pct = total? Math.round(shipped/total*100):0;
+    var complete = c.complete||0;
+    var pct = total? Math.round(complete/total*100):0;
 
     var html = "";
-    html += head(shipped,total,pct);
-    html += overview(c,total,shipped,pct);
+    html += head();
+    html += overview(c,total,complete,pct);
     html += controls();
     html += '<div class="readonly-banner">You have view-only access — status changes won’t be shared. Ask the owner for edit access to update the board.</div>';
     html += list();
@@ -290,14 +292,14 @@
     root.innerHTML = html;
   }
 
-  function head(shipped,total,pct){
+  function head(){
     var s = syncMeta();
     return ''
     + '<div class="top">'
     +   '<div>'
     +     '<div class="eyebrow">Frame · Shape · Plan · Build · Ship · Observe</div>'
     +     '<h1>Starman Process V0</h1>'
-    +     '<p class="lede">Every prioritized item, ordered by the phase of our process. Owner is a tag you can filter by. Set a status on any item — the board stays in sync for everyone.</p>'
+    +     '<p class="lede">Every prioritized item, ordered by the phase of our process. Owner is a tag you can filter by. Mark each item Complete or Incomplete — the board stays in sync for everyone.</p>'
     +   '</div>'
     +   '<div class="head-tools">'
     +     '<div class="sync '+s.cls+'" id="sync"><span class="dot"></span>'+esc(s.text)+'</div>'
@@ -306,18 +308,16 @@
     + '</div>';
   }
 
-  function overview(c,total,shipped,pct){
-    var order=["shipped","testing","progress","scoping","blocked","notstarted"];
+  function overview(c,total,complete,pct){
     var bar="";
-    order.forEach(function(k){
+    ["complete","incomplete"].forEach(function(k){
       var n=c[k]||0; if(!n) return;
       bar+='<span class="'+STATUS[k].seg+'" style="flex:'+n+' 1 0" title="'+esc(STATUS[k].label)+': '+n+'"></span>';
     });
-    if(!bar) bar='<span class="seg-notstarted" style="flex:1"></span>';
+    if(!bar) bar='<span class="seg-incomplete" style="flex:1"></span>';
 
     var leg="";
-    STATUS_KEYS.forEach(function(k){
-      if(!(c[k]||0) && k!=="notstarted" && k!=="testing" && k!=="shipped") return; // keep key focused
+    ["complete","incomplete"].forEach(function(k){
       leg+='<span class="lchip"><span class="sw" style="background:var('+STATUS[k].sw+')"></span>'
          +esc(STATUS[k].label)+' <b>'+(c[k]||0)+'</b></span>';
     });
@@ -325,7 +325,7 @@
     return ''
     + '<div class="overview">'
     +   '<div class="ov-head">'
-    +     '<div class="ov-big"><b>'+shipped+'</b> of '+total+' shipped</div>'
+    +     '<div class="ov-big"><b>'+complete+'</b> of '+total+' complete</div>'
     +     '<div class="ov-pct">'+pct+'% complete</div>'
     +   '</div>'
     +   '<div class="bar">'+bar+'</div>'
@@ -334,36 +334,40 @@
   }
 
   function controls(){
-    var chips='<span class="flabel">Owner</span>';
-    chips+='<button class="tchip'+(filterTeam==="all"?" on":"")+'" data-act="fteam" data-team="all">All</button>';
+    var owner='<span class="flabel">Owner</span>';
+    owner+='<button class="tchip'+(filterTeam==="all"?" on":"")+'" data-act="fteam" data-team="all">All</button>';
     TEAM_ORDER.forEach(function(t){
-      chips+='<button class="tchip'+(filterTeam===t?" on":"")+'" data-act="fteam" data-team="'+t+'">'+esc(TEAMS[t].name)+'</button>';
+      owner+='<button class="tchip'+(filterTeam===t?" on":"")+'" data-act="fteam" data-team="'+t+'">'+esc(TEAMS[t].name)+'</button>';
     });
-    return '<div class="controls">'+chips+'</div>';
+
+    var stat='<span class="flabel">Status</span>';
+    stat+='<button class="tchip'+(filterStatus==="all"?" on":"")+'" data-act="fstatus" data-status="all">All</button>';
+    STATUS_KEYS.forEach(function(k){
+      stat+='<button class="tchip'+(filterStatus===k?" on":"")+'" data-act="fstatus" data-status="'+k+'">'
+          +'<span class="sw" style="background:var('+STATUS[k].sw+')"></span>'+esc(STATUS[k].label)+'</button>';
+    });
+
+    return '<div class="controls"><div class="fgroup">'+owner+'</div><div class="fgroup">'+stat+'</div></div>';
   }
 
   function list(){
-    var idxOf={}; STATE.items.forEach(function(it,i){ idxOf[it.id]=i+1; });
     var out="", any=false;
     PHASE_ORDER.forEach(function(p,pi){
-      var items=STATE.items.filter(function(it){
-        return it.phase===p && (filterTeam==="all" || hasTeam(it,filterTeam));
-      });
+      var items=STATE.items.filter(function(it){ return it.phase===p && matches(it); });
       if(!items.length) return;
       any=true;
       out+='<section class="group">';
       out+= '<div class="group-head"><span class="pnum">'+(pi+1)+'</span>'
           + '<span class="gname">'+esc(PHASES[p].name)+'</span>'
           + '<span class="gcount">'+items.length+'</span></div>';
-      items.forEach(function(it){ out+=itemCard(it,idxOf[it.id]); });
+      items.forEach(function(it){ out+=itemCard(it); });
       out+='</section>';
     });
-    if(!any) out='<div class="empty">No items match this owner.</div>';
+    if(!any) out='<div class="empty">No items match these filters.</div>';
     return out;
   }
 
   function itemCard(it){
-    var done = it.status==="shipped";
     var opts="";
     STATUS_KEYS.forEach(function(k){
       opts+='<option value="'+k+'"'+(it.status===k?" selected":"")+'>'+esc(STATUS[k].label)+'</option>';
@@ -378,13 +382,13 @@
     else if(it.teams.length>1) meta+='<span class="subteam">collaboration</span>';
 
     return ''
-    + '<article class="item'+(done?" done":"")+'" style="--team:'+teamColor(it)+'">'
+    + '<article class="item" style="--team:'+teamColor(it)+'">'
     +   '<div class="body">'
     +     '<span class="title">'+esc(it.title)+'</span>'
     +     '<div class="metarow">'+meta+'</div>'
     +   '</div>'
     +   '<div class="rail">'
-    +     '<select class="status '+STATUS[it.status].cls+'" data-act="status" data-id="'+it.id+'" aria-label="Status for '+esc(it.title)+'">'+opts+'</select>'
+    +     '<select class="status '+STATUS[it.status].fill+'" data-act="status" data-id="'+it.id+'" aria-label="Status for '+esc(it.title)+'">'+opts+'</select>'
     +   '</div>'
     + '</article>';
   }
@@ -412,6 +416,7 @@
     var act=b.getAttribute("data-act");
     if(act==="theme"){ toggleTheme(); return; }
     if(act==="fteam"){ filterTeam=b.getAttribute("data-team"); render(); return; }
+    if(act==="fstatus"){ filterStatus=b.getAttribute("data-status"); render(); return; }
   });
 
   /* ---------- theme ---------- */
