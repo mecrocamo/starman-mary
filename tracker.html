@@ -1,0 +1,751 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,400&display=swap">
+
+<style id="app-style">
+  /* ---- reset ---- */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+
+  /* ---- tokens: light ---- */
+  :root{
+    --bg:#F2F4F8; --panel:#FFFFFF; --panel-2:#F8FAFC; --panel-3:#F1F4F8;
+    --ink:#141924; --ink-2:#48536A; --ink-3:#7C8698;
+    --line:#E3E8F0; --line-2:#EDF0F6;
+    --accent:#2F55E0; --accent-ink:#FFFFFF; --accent-soft:#E6ECFD; --accent-line:#C4D2FA;
+    --shadow:0 1px 2px rgba(20,30,55,.05), 0 2px 6px rgba(20,30,55,.05);
+    --shadow-lift:0 6px 20px rgba(20,30,55,.11);
+    --focus:#2F55E0;
+
+    --s-notstarted:#5B677C; --s-notstarted-bg:#EAEEF4;
+    --s-scoping:#7A3CEA;    --s-scoping-bg:#F0E9FD;
+    --s-progress:#A96A06;   --s-progress-bg:#FaF0DA;
+    --s-testing:#0B7C93;    --s-testing-bg:#DDF0F4;
+    --s-shipped:#127A3B;    --s-shipped-bg:#DBF2E3;
+    --s-blocked:#CF2A2A;    --s-blocked-bg:#FBE2E2;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0D1118; --panel:#151B25; --panel-2:#1A212D; --panel-3:#202836;
+      --ink:#E8ECF3; --ink-2:#A3AEC0; --ink-3:#6C7789;
+      --line:#252E3C; --line-2:#1E2632;
+      --accent:#6E90FF; --accent-ink:#0A0F1A; --accent-soft:#1A263F; --accent-line:#2C3D63;
+      --shadow:0 1px 2px rgba(0,0,0,.35); --shadow-lift:0 8px 26px rgba(0,0,0,.5);
+      --focus:#6E90FF;
+      --s-notstarted:#93A0B4; --s-notstarted-bg:#222B37;
+      --s-scoping:#B597F8;    --s-scoping-bg:#282141;
+      --s-progress:#DDA94E;   --s-progress-bg:#31260F;
+      --s-testing:#48BFD6;    --s-testing-bg:#0F2E37;
+      --s-shipped:#54C283;    --s-shipped-bg:#112E1F;
+      --s-blocked:#F07171;    --s-blocked-bg:#371A1A;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0D1118; --panel:#151B25; --panel-2:#1A212D; --panel-3:#202836;
+    --ink:#E8ECF3; --ink-2:#A3AEC0; --ink-3:#6C7789;
+    --line:#252E3C; --line-2:#1E2632;
+    --accent:#6E90FF; --accent-ink:#0A0F1A; --accent-soft:#1A263F; --accent-line:#2C3D63;
+    --shadow:0 1px 2px rgba(0,0,0,.35); --shadow-lift:0 8px 26px rgba(0,0,0,.5);
+    --focus:#6E90FF;
+    --s-notstarted:#93A0B4; --s-notstarted-bg:#222B37;
+    --s-scoping:#B597F8;    --s-scoping-bg:#282141;
+    --s-progress:#DDA94E;   --s-progress-bg:#31260F;
+    --s-testing:#48BFD6;    --s-testing-bg:#0F2E37;
+    --s-shipped:#54C283;    --s-shipped-bg:#112E1F;
+    --s-blocked:#F07171;    --s-blocked-bg:#371A1A;
+  }
+
+  body{
+    font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+    background:var(--bg); color:var(--ink);
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+    padding:0; min-height:100vh;
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding:40px 24px 96px}
+  ::selection{background:var(--accent-soft)}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+
+  .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-3);font-weight:500}
+
+  /* ---- masthead ---- */
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+  h1{font-family:"IBM Plex Serif",Georgia,serif;font-weight:600;font-size:30px;
+    letter-spacing:-.01em;line-height:1.12;text-wrap:balance;margin-top:6px}
+  .lede{color:var(--ink-2);font-size:14.5px;max-width:60ch;margin-top:8px}
+
+  .sync{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);
+    background:var(--panel);border:1px solid var(--line);border-radius:100px;
+    padding:6px 12px 6px 11px;box-shadow:var(--shadow);white-space:nowrap}
+  .sync .dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3);flex-shrink:0}
+  .sync.is-saved .dot{background:var(--s-shipped)}
+  .sync.is-saving .dot{background:var(--s-progress);animation:pulse 1s infinite}
+  .sync.is-local .dot{background:var(--s-progress)}
+  .sync.is-readonly .dot{background:var(--s-scoping)}
+  .sync.is-error .dot{background:var(--s-blocked)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+  .toolbtn{font:inherit;font-size:12px;color:var(--ink-2);cursor:pointer;
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:6px 11px;box-shadow:var(--shadow)}
+  .toolbtn:hover{color:var(--ink);border-color:var(--ink-3)}
+  .head-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+  /* ---- overview ---- */
+  .overview{margin-top:28px;background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:22px 24px;box-shadow:var(--shadow)}
+  .ov-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+  .ov-big{font-family:"IBM Plex Serif",serif;font-size:22px;font-weight:600}
+  .ov-big b{color:var(--s-shipped)}
+  .ov-pct{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-2);
+    font-variant-numeric:tabular-nums}
+
+  .bar{display:flex;height:12px;border-radius:100px;overflow:hidden;margin-top:16px;
+    background:var(--panel-3);gap:2px}
+  .bar span{display:block;min-width:3px;transition:flex-basis .4s ease}
+  .seg-notstarted{background:var(--s-notstarted)} .seg-scoping{background:var(--s-scoping)}
+  .seg-progress{background:var(--s-progress)} .seg-testing{background:var(--s-testing)}
+  .seg-shipped{background:var(--s-shipped)} .seg-blocked{background:var(--s-blocked)}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .lchip{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;cursor:pointer;
+    background:transparent;border:1px solid var(--line);border-radius:100px;
+    padding:5px 12px 5px 10px;color:var(--ink-2);font-family:inherit;transition:.12s}
+  .lchip:hover{border-color:var(--ink-3);color:var(--ink)}
+  .lchip .sw{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+  .lchip b{color:var(--ink);font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+  .lchip.on{background:var(--accent-soft);border-color:var(--accent-line);color:var(--ink)}
+
+  /* ---- controls ---- */
+  .controls{display:flex;justify-content:space-between;gap:16px;align-items:center;
+    margin-top:26px;flex-wrap:wrap}
+  .teamfilter{display:flex;gap:6px;flex-wrap:wrap}
+  .tchip{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.02em;cursor:pointer;
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 12px;
+    color:var(--ink-2);transition:.12s}
+  .tchip:hover{color:var(--ink);border-color:var(--ink-3)}
+  .tchip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .search{position:relative}
+  .search input{font:inherit;font-size:13px;background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;padding:8px 12px 8px 32px;color:var(--ink);width:200px;box-shadow:var(--shadow)}
+  .search input::placeholder{color:var(--ink-3)}
+  .search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+
+  /* ---- team group ---- */
+  .group{margin-top:34px}
+  .group-head{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+  .group-head .gname{font-size:13px;font-weight:600;color:var(--ink)}
+  .group-head .gfull{font-size:12px;color:var(--ink-3)}
+  .group-head .gcount{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:11px;
+    color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .group-head .tick{width:22px;height:3px;border-radius:2px;background:var(--team)}
+
+  /* ---- item ---- */
+  .item{display:grid;grid-template-columns:44px 1fr 232px;gap:18px;
+    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--team);
+    border-radius:14px;padding:18px 20px;margin-top:10px;box-shadow:var(--shadow);
+    transition:box-shadow .16s, transform .16s}
+  .item:hover{box-shadow:var(--shadow-lift)}
+  .item.done{opacity:.72}
+  .idx{font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:600;color:var(--team);
+    padding-top:1px;font-variant-numeric:tabular-nums}
+
+  .body{min-width:0}
+  .titlerow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  input.title{font:inherit;font-size:16px;font-weight:600;color:var(--ink);letter-spacing:-.005em;
+    background:transparent;border:none;border-radius:6px;padding:2px 4px;margin:-2px -4px;
+    width:100%;max-width:100%}
+  input.title:hover{background:var(--panel-3)}
+  input.title:focus{background:var(--panel-3);outline:2px solid var(--focus);outline-offset:0}
+
+  .metarow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:7px}
+  .teamtag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--team);background:var(--team-soft);
+    border-radius:5px;padding:3px 7px}
+  .subteam{font-size:11.5px;color:var(--ink-3);font-style:italic}
+  .prio{display:inline-flex;align-items:center;gap:5px;font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--s-blocked);background:var(--s-blocked-bg);border-radius:5px;padding:3px 7px}
+  .prio .fl{width:7px;height:7px;border-radius:50%;background:var(--s-blocked)}
+
+  textarea.note{font:inherit;font-size:13px;color:var(--ink-2);line-height:1.55;width:100%;
+    background:var(--panel-2);border:1px solid var(--line-2);border-radius:9px;
+    padding:9px 11px;margin-top:12px;resize:none;overflow:hidden;min-height:38px;display:block}
+  textarea.note::placeholder{color:var(--ink-3)}
+  textarea.note:focus{outline:2px solid var(--focus);outline-offset:0;border-color:transparent;
+    background:var(--panel)}
+
+  .subs{margin-top:12px;display:flex;flex-direction:column;gap:2px}
+  .sub{display:flex;align-items:center;gap:9px;padding:3px 4px;border-radius:7px}
+  .sub:hover{background:var(--panel-3)}
+  .sub input[type=checkbox]{appearance:none;-webkit-appearance:none;width:16px;height:16px;
+    border:1.5px solid var(--ink-3);border-radius:5px;cursor:pointer;flex-shrink:0;position:relative;
+    background:var(--panel)}
+  .sub input[type=checkbox]:checked{background:var(--s-shipped);border-color:var(--s-shipped)}
+  .sub input[type=checkbox]:checked::after{content:"";position:absolute;left:4.5px;top:1.5px;
+    width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .sub label{font-size:13px;color:var(--ink);cursor:pointer;flex:1}
+  .sub.checked label{text-decoration:line-through;color:var(--ink-3)}
+  .sub .x{margin-left:auto;background:none;border:none;color:var(--ink-3);cursor:pointer;
+    font-size:15px;line-height:1;padding:2px 4px;opacity:0;border-radius:5px}
+  .sub:hover .x{opacity:1}
+  .sub .x:hover{color:var(--s-blocked);background:var(--s-blocked-bg)}
+  .subadd{display:flex;align-items:center;gap:9px;padding:3px 4px;margin-top:2px}
+  .subadd .plus{width:16px;text-align:center;color:var(--ink-3);font-size:14px}
+  .subadd input{font:inherit;font-size:13px;color:var(--ink);background:transparent;border:none;
+    padding:3px 0;width:100%}
+  .subadd input::placeholder{color:var(--ink-3)}
+
+  /* ---- rail ---- */
+  .rail{display:flex;flex-direction:column;gap:11px}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field .lab{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--ink-3);font-weight:500}
+  select.status{font:inherit;font-weight:600;font-size:12.5px;cursor:pointer;appearance:none;
+    -webkit-appearance:none;border-radius:9px;padding:9px 30px 9px 13px;width:100%;
+    background-repeat:no-repeat;background-position:right 11px center;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23888' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E');
+    border:1px solid transparent}
+  select.status:focus{outline:2px solid var(--focus);outline-offset:1px}
+  .st-notstarted{color:var(--s-notstarted);background-color:var(--s-notstarted-bg)}
+  .st-scoping{color:var(--s-scoping);background-color:var(--s-scoping-bg)}
+  .st-progress{color:var(--s-progress);background-color:var(--s-progress-bg)}
+  .st-testing{color:var(--s-testing);background-color:var(--s-testing-bg)}
+  .st-shipped{color:var(--s-shipped);background-color:var(--s-shipped-bg)}
+  .st-blocked{color:var(--s-blocked);background-color:var(--s-blocked-bg)}
+
+  input.owner{font:inherit;font-size:13px;color:var(--ink);background:var(--panel-2);
+    border:1px solid var(--line-2);border-radius:9px;padding:8px 11px;width:100%}
+  input.owner::placeholder{color:var(--ink-3)}
+  input.owner:focus{outline:2px solid var(--focus);outline-offset:0;background:var(--panel)}
+
+  .rail-actions{display:flex;gap:6px;margin-top:1px}
+  .minibtn{font:inherit;font-size:11.5px;cursor:pointer;background:transparent;
+    border:1px solid var(--line);border-radius:7px;padding:6px 9px;color:var(--ink-2);flex:1}
+  .minibtn:hover{border-color:var(--ink-3);color:var(--ink)}
+  .minibtn.on{background:var(--s-blocked-bg);border-color:transparent;color:var(--s-blocked);font-weight:600}
+  .minibtn.danger:hover{border-color:var(--s-blocked);color:var(--s-blocked)}
+
+  .additem{width:100%;margin-top:10px;font:inherit;font-size:12.5px;cursor:pointer;
+    background:transparent;border:1px dashed var(--line);border-radius:11px;padding:11px;
+    color:var(--ink-3);transition:.12s}
+  .additem:hover{border-color:var(--accent-line);color:var(--accent);background:var(--accent-soft)}
+
+  .empty{text-align:center;color:var(--ink-3);font-size:14px;padding:60px 0}
+
+  footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+    font-size:12px;color:var(--ink-3)}
+  footer .saved{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+
+  .readonly-banner{margin-top:20px;background:var(--s-scoping-bg);color:var(--s-scoping);
+    border-radius:10px;padding:10px 14px;font-size:12.5px;font-weight:500;display:none}
+  body.readonly .readonly-banner{display:block}
+  body.readonly input,body.readonly textarea,body.readonly select{pointer-events:none}
+  body.readonly .additem,body.readonly .rail-actions,body.readonly .subadd,body.readonly .sub .x{display:none}
+
+  @media (max-width:760px){
+    .wrap{padding:28px 16px 80px}
+    h1{font-size:25px}
+    .item{grid-template-columns:34px 1fr;gap:12px}
+    .rail{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;margin-top:4px}
+    .rail .field{flex:1;min-width:130px}
+    .rail-actions{flex:1;margin-top:0}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <div id="root"></div>
+</div>
+
+<script id="app-state" type="application/json">
+{
+  "meta": {"updatedAt": "2026-08-28T18:10:28.290Z"},
+  "items": [
+    {"id":"tc","teams":["pdm"],"title":"Ticket Creator Skill","status":"progress","owner":"","priority":true,
+     "note":"The only item on the board already built — it just needs validation and distribution.",
+     "subs":[{"t":"Finish testing the skill","done":false},{"t":"Publish to the GitHub marketplace","done":false}]},
+    {"id":"ua","teams":["pdm"],"title":"Usage Analytics Review Skill","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
+    {"id":"in","teams":["pdm"],"title":"Introspect Skill","status":"scoping","owner":"","priority":false,
+     "note":"Define the skill that has Claude review the overall project and feed suggested opportunities into the project retrospective. Pair with Agent Retrospective (#9) so the two don't overlap.","subs":[]},
+    {"id":"uat","teams":["eng"],"title":"UAT Report Skill & Standards","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
+    {"id":"ss","teams":["eng"],"title":"Service Stability Skill","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
+    {"id":"obs","teams":["eng"],"title":"Observability GitHub Pages Feature","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
+    {"id":"dv","teams":["dsgn"],"title":"Design Versioning Process Documentation","status":"notstarted","owner":"","priority":false,"note":"","subs":[]},
+    {"id":"cc","teams":["eng","dsgn"],"title":"Code Connect","status":"notstarted","owner":"","priority":false,
+     "note":"Stand up Code Connect with a working prototype as the output. A joint Engineering + Design effort.","subs":[]},
+    {"id":"ar","teams":["pdm"],"title":"Agent Retrospective","status":"notstarted","owner":"PdM","priority":false,
+     "note":"AI observing work and adding items to the backlog. Owned by PdM for now. Pair with the Introspect Skill (#3).","subs":[]}
+  ]
+}
+</script>
+
+<script id="app-code">
+(function(){
+  "use strict";
+
+  var STATUS = {
+    notstarted:{label:"Not started",cls:"st-notstarted",seg:"seg-notstarted",sw:"--s-notstarted"},
+    scoping:   {label:"Scoping",    cls:"st-scoping",   seg:"seg-scoping",   sw:"--s-scoping"},
+    progress:  {label:"In progress",cls:"st-progress",  seg:"seg-progress",  sw:"--s-progress"},
+    testing:   {label:"In testing", cls:"st-testing",   seg:"seg-testing",   sw:"--s-testing"},
+    shipped:   {label:"Shipped",    cls:"st-shipped",   seg:"seg-shipped",   sw:"--s-shipped"},
+    blocked:   {label:"Blocked",    cls:"st-blocked",   seg:"seg-blocked",   sw:"--s-blocked"}
+  };
+  var STATUS_KEYS = ["notstarted","scoping","progress","testing","shipped","blocked"];
+  var TEAMS = {
+    pdm:  {name:"PdM",  full:"Product Management", color:"#4F46E5", soft:"rgba(79,70,229,.12)"},
+    eng:  {name:"Eng",  full:"Engineering",        color:"#0B8AA6", soft:"rgba(11,138,166,.13)"},
+    dsgn: {name:"Dsgn", full:"Design",             color:"#C0267E", soft:"rgba(192,38,126,.12)"}
+  };
+  var TEAM_ORDER = ["pdm","eng","dsgn"];
+
+  var stateEl = document.getElementById("app-state");
+  var root = document.getElementById("root");
+  var STATE = JSON.parse(stateEl.textContent);
+
+  var filterTeam = "all";
+  var filterStatus = "all";
+  var query = "";
+  var READONLY = false;
+  var artifact = null;
+  var localMode = false;
+  var syncState = "connecting";
+
+  function normalize(){
+    (STATE.items||[]).forEach(function(it){
+      if(!Array.isArray(it.teams)) it.teams = it.team ? [it.team] : ["pdm"];
+      it.teams = it.teams.filter(function(t){ return t in TEAMS; });
+      if(!it.teams.length) it.teams = ["pdm"];
+      if(!Array.isArray(it.subs)) it.subs = [];
+      delete it.team; delete it.tag;
+    });
+    if(!STATE.meta) STATE.meta = {};
+  }
+  normalize();
+
+  /* ---------- helpers ---------- */
+  function esc(s){
+    return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function byId(id){ for(var i=0;i<STATE.items.length;i++){ if(STATE.items[i].id===id) return STATE.items[i]; } return null; }
+  function counts(){
+    var c={}; STATUS_KEYS.forEach(function(k){c[k]=0;});
+    STATE.items.forEach(function(it){ if(c[it.status]==null)c[it.status]=0; c[it.status]++; });
+    return c;
+  }
+  function fmtTime(iso){
+    if(!iso) return "not saved yet";
+    try{
+      var d=new Date(iso);
+      return d.toLocaleDateString(undefined,{month:"short",day:"numeric"})+", "+
+             d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
+    }catch(e){ return "recently"; }
+  }
+  function uid(){ return "n"+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+
+  /* ---------- rendering ---------- */
+  function render(){
+    var focus = captureFocus();
+    var c = counts();
+    var total = STATE.items.length;
+    var shipped = c.shipped||0;
+    var pct = total? Math.round(shipped/total*100):0;
+
+    var html = "";
+    html += head(shipped,total,pct);
+    html += overview(c,total,shipped,pct);
+    html += controls();
+    html += '<div class="readonly-banner">You have view-only access to this tracker — your edits won’t be shared. Ask the owner for edit access to make changes.</div>';
+    html += list();
+    html += foot();
+    root.innerHTML = html;
+
+    // theme applied to <html>, not re-rendered here
+    Array.prototype.forEach.call(root.querySelectorAll("textarea.note"), autosize);
+    restoreFocus(focus);
+  }
+
+  function head(shipped,total,pct){
+    var s = syncMeta();
+    return ''
+    + '<div class="top">'
+    +   '<div>'
+    +     '<div class="eyebrow">Skills &amp; tooling roadmap</div>'
+    +     '<h1>Skills Build Tracker</h1>'
+    +     '<p class="lede">Where every skill, feature, and process on the roadmap stands — across Product, Engineering, and Design. Filter by a team to see everything it touches, including cross-team collaborations. Change a status, claim an owner, tick off the steps.</p>'
+    +   '</div>'
+    +   '<div class="head-tools">'
+    +     '<div class="sync '+s.cls+'" id="sync"><span class="dot"></span>'+esc(s.text)+'</div>'
+    +     '<button class="toolbtn" data-act="theme">'+themeLabel()+'</button>'
+    +   '</div>'
+    + '</div>';
+  }
+
+  function overview(c,total,shipped,pct){
+    var order=["shipped","testing","progress","scoping","blocked","notstarted"];
+    var bar="";
+    order.forEach(function(k){
+      var n=c[k]||0; if(!n) return;
+      bar+='<span class="'+STATUS[k].seg+'" style="flex:'+n+' 1 0" title="'+esc(STATUS[k].label)+': '+n+'"></span>';
+    });
+    if(!bar) bar='<span class="seg-notstarted" style="flex:1"></span>';
+
+    var leg="";
+    STATUS_KEYS.forEach(function(k){
+      var n=c[k]||0;
+      var on = filterStatus===k? " on":"";
+      leg+='<button class="lchip'+on+'" data-act="fstatus" data-status="'+k+'">'
+         +'<span class="sw" style="background:var('+STATUS[k].sw+')"></span>'
+         +esc(STATUS[k].label)+' <b>'+n+'</b></button>';
+    });
+
+    return ''
+    + '<div class="overview">'
+    +   '<div class="ov-head">'
+    +     '<div class="ov-big"><b>'+shipped+'</b> of '+total+' shipped</div>'
+    +     '<div class="ov-pct">'+pct+'% complete</div>'
+    +   '</div>'
+    +   '<div class="bar">'+bar+'</div>'
+    +   '<div class="legend">'+leg+'</div>'
+    + '</div>';
+  }
+
+  function controls(){
+    var chips='<button class="tchip'+(filterTeam==="all"?" on":"")+'" data-act="fteam" data-team="all">All teams</button>';
+    TEAM_ORDER.forEach(function(t){
+      chips+='<button class="tchip'+(filterTeam===t?" on":"")+'" data-act="fteam" data-team="'+t+'">'+esc(TEAMS[t].name)+'</button>';
+    });
+    return ''
+    + '<div class="controls">'
+    +   '<div class="teamfilter">'+chips+'</div>'
+    +   '<div class="search">'
+    +     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>'
+    +     '<input type="text" data-act="search" data-focus="search" placeholder="Search items…" value="'+esc(query)+'">'
+    +   '</div>'
+    + '</div>';
+  }
+
+  function hasTeam(it,t){ return (it.teams||[]).indexOf(t)>=0; }
+  function primary(it){ return (it.teams&&it.teams[0])||"pdm"; }
+
+  function matches(it){
+    if(filterStatus!=="all" && it.status!==filterStatus) return false;
+    if(query){
+      var q=query.toLowerCase();
+      var names=(it.teams||[]).map(function(t){ return TEAMS[t]?TEAMS[t].name+" "+TEAMS[t].full:""; }).join(" ");
+      var hay=(it.title+" "+(it.note||"")+" "+(it.owner||"")+" "+names).toLowerCase();
+      if(hay.indexOf(q)<0) return false;
+    }
+    return true;
+  }
+
+  function groupSection(t,items,totalInTeam,filtering,filteredView){
+    var tm=TEAMS[t];
+    var count = filteredView ? items.length+" shown"
+              : items.length + (filtering ? " shown" : " of "+totalInTeam);
+    var out='<section class="group" style="--team:'+tm.color+';--team-soft:'+tm.soft+'">';
+    out+= '<div class="group-head"><span class="tick"></span>'
+        + '<span class="gname">'+esc(tm.full)+'</span>'
+        + '<span class="gfull mono">'+esc(tm.name)+'</span>'
+        + '<span class="gcount">'+count+'</span></div>';
+    if(!items.length) out+='<div class="empty">No items match the current filters.</div>';
+    var idxOf=window.__idxOf;
+    items.forEach(function(it){ out+=itemCard(it,idxOf[it.id]); });
+    if(!READONLY && !filtering)
+      out+='<button class="additem" data-act="additem" data-team="'+t+'">+ Add item to '+esc(tm.name)+'</button>';
+    out+='</section>';
+    return out;
+  }
+
+  function list(){
+    var idxOf={}; STATE.items.forEach(function(it,i){ idxOf[it.id]=i+1; });
+    window.__idxOf = idxOf;
+    var filtering = !!(query || filterStatus!=="all");
+
+    // Filtering by a team shows every item that team touches — including
+    // cross-team collaborations whose primary group sits elsewhere.
+    if(filterTeam!=="all"){
+      var items=STATE.items.filter(function(it){ return hasTeam(it,filterTeam) && matches(it); });
+      return groupSection(filterTeam,items,items.length,filtering,true);
+    }
+
+    var out="", any=false;
+    TEAM_ORDER.forEach(function(t){
+      var items=STATE.items.filter(function(it){ return primary(it)===t && matches(it); });
+      var totalInTeam=STATE.items.filter(function(it){ return primary(it)===t; }).length;
+      if(!items.length && filtering) return;
+      any = any || items.length>0;
+      out+=groupSection(t,items,totalInTeam,filtering,false);
+    });
+    if(!any) out='<div class="empty">No items match the current filters.</div>';
+    return out;
+  }
+
+  function itemCard(it,idx){
+    var tm=TEAMS[primary(it)]||TEAMS.pdm;
+    var done = it.status==="shipped";
+    var num = ("0"+idx).slice(-2);
+
+    var opts="";
+    STATUS_KEYS.forEach(function(k){
+      opts+='<option value="'+k+'"'+(it.status===k?" selected":"")+'>'+esc(STATUS[k].label)+'</option>';
+    });
+
+    var subs="";
+    (it.subs||[]).forEach(function(s,i){
+      subs+='<div class="sub'+(s.done?" checked":"")+'">'
+          + '<input type="checkbox" data-act="sub" data-id="'+it.id+'" data-idx="'+i+'"'+(s.done?" checked":"")+'>'
+          + '<label>'+esc(s.t)+'</label>'
+          + '<button class="x" data-act="subdel" data-id="'+it.id+'" data-idx="'+i+'" title="Remove step">×</button>'
+          + '</div>';
+    });
+    subs+='<div class="subadd"><span class="plus">+</span>'
+        + '<input type="text" data-act="subadd" data-id="'+it.id+'" data-focus="subadd-'+it.id+'" placeholder="Add a step…"></div>';
+
+    var meta="";
+    (it.teams||[]).forEach(function(tk){
+      var t=TEAMS[tk]; if(!t) return;
+      meta+='<span class="teamtag" style="color:'+t.color+';background:'+t.soft+'">'+esc(t.name)+'</span>';
+    });
+    if((it.teams||[]).length>1) meta+='<span class="subteam">collaboration</span>';
+    if(it.priority) meta+='<span class="prio"><span class="fl"></span>Priority</span>';
+
+    return ''
+    + '<article class="item'+(done?" done":"")+'" style="--team:'+tm.color+';--team-soft:'+tm.soft+'">'
+    +   '<div class="idx">'+num+'</div>'
+    +   '<div class="body">'
+    +     '<div class="titlerow"><input class="title" data-act="title" data-id="'+it.id+'" data-focus="title-'+it.id+'" value="'+esc(it.title)+'" aria-label="Item title"></div>'
+    +     '<div class="metarow">'+meta+'</div>'
+    +     '<textarea class="note" data-act="note" data-id="'+it.id+'" data-focus="note-'+it.id+'" placeholder="Add notes, links, or blockers…">'+esc(it.note||"")+'</textarea>'
+    +     '<div class="subs">'+subs+'</div>'
+    +   '</div>'
+    +   '<div class="rail">'
+    +     '<div class="field"><span class="lab">Status</span>'
+    +       '<select class="status '+STATUS[it.status].cls+'" data-act="status" data-id="'+it.id+'" aria-label="Status">'+opts+'</select></div>'
+    +     '<div class="field"><span class="lab">Owner</span>'
+    +       '<input class="owner" data-act="owner" data-id="'+it.id+'" data-focus="owner-'+it.id+'" value="'+esc(it.owner||"")+'" placeholder="Unassigned"></div>'
+    +     '<div class="rail-actions">'
+    +       '<button class="minibtn'+(it.priority?" on":"")+'" data-act="prio" data-id="'+it.id+'">'+(it.priority?"⚑ Priority":"Flag priority")+'</button>'
+    +       '<button class="minibtn danger" data-act="delitem" data-id="'+it.id+'" title="Remove item">✕</button>'
+    +     '</div>'
+    +   '</div>'
+    + '</article>';
+  }
+
+  function foot(){
+    return '<footer>'
+      + '<span>Shared tracker · edits save for everyone with access.</span>'
+      + '<span class="saved">Last saved: '+esc(fmtTime(STATE.meta&&STATE.meta.updatedAt))+'</span>'
+      + '</footer>';
+  }
+
+  /* ---------- focus preservation ---------- */
+  function captureFocus(){
+    var el=document.activeElement;
+    if(el&&el.dataset&&el.dataset.focus){
+      var f={key:el.dataset.focus,start:null,end:null};
+      try{ f.start=el.selectionStart; f.end=el.selectionEnd; }catch(e){}
+      return f;
+    }
+    return null;
+  }
+  function restoreFocus(f){
+    if(!f) return;
+    var sel='[data-focus="'+(window.CSS&&CSS.escape?CSS.escape(f.key):f.key)+'"]';
+    var el=root.querySelector(sel);
+    if(el){ el.focus(); try{ if(f.start!=null) el.setSelectionRange(f.start,f.end); }catch(e){} }
+  }
+  function autosize(ta){ ta.style.height="auto"; ta.style.height=Math.max(ta.scrollHeight,38)+"px"; }
+
+  /* ---------- mutations ---------- */
+  function touch(){ if(!STATE.meta)STATE.meta={}; STATE.meta.updatedAt=new Date().toISOString(); }
+
+  function onInput(e){
+    var t=e.target, act=t.getAttribute&&t.getAttribute("data-act");
+    if(!act) return;
+    if(act==="search"){ query=t.value; render(); return; }
+    if(READONLY) return;
+    if(act==="note"){ var it=byId(t.getAttribute("data-id")); if(it){it.note=t.value;} autosize(t); return; }
+    if(act==="title"){ var i2=byId(t.getAttribute("data-id")); if(i2){i2.title=t.value;} return; }
+    if(act==="owner"){ var i3=byId(t.getAttribute("data-id")); if(i3){i3.owner=t.value;} return; }
+  }
+
+  function onChange(e){
+    var t=e.target, act=t.getAttribute&&t.getAttribute("data-act");
+    if(!act||READONLY) return;
+    if(act==="status"){
+      var it=byId(t.getAttribute("data-id")); if(it){ it.status=t.value; } touch(); render(); save(); return;
+    }
+    if(act==="sub"){
+      var i2=byId(t.getAttribute("data-id")); var idx=+t.getAttribute("data-idx");
+      if(i2&&i2.subs[idx]){ i2.subs[idx].done=t.checked; } touch(); render(); save(); return;
+    }
+    if(act==="note"||act==="title"||act==="owner"){ touch(); save(); return; }
+  }
+
+  function onClick(e){
+    var b=e.target.closest?e.target.closest("[data-act]"):null;
+    if(!b) return;
+    var act=b.getAttribute("data-act");
+
+    if(act==="theme"){ toggleTheme(); return; }
+    if(act==="fteam"){ filterTeam=b.getAttribute("data-team"); render(); return; }
+    if(act==="fstatus"){ var s=b.getAttribute("data-status"); filterStatus=(filterStatus===s?"all":s); render(); return; }
+    if(READONLY) return;
+
+    if(act==="prio"){ var it=byId(b.getAttribute("data-id")); if(it){it.priority=!it.priority;} touch(); render(); save(); return; }
+    if(act==="subdel"){ var i2=byId(b.getAttribute("data-id")); var idx=+b.getAttribute("data-idx");
+      if(i2&&i2.subs){ i2.subs.splice(idx,1); } touch(); render(); save(); return; }
+    if(act==="delitem"){ var i3=byId(b.getAttribute("data-id"));
+      if(i3 && window.confirm("Remove “"+i3.title+"” from the tracker?")){
+        STATE.items=STATE.items.filter(function(x){return x.id!==i3.id;}); touch(); render(); save(); }
+      return; }
+    if(act==="additem"){
+      var team=b.getAttribute("data-team");
+      var it2={id:uid(),teams:[team],title:"",status:"notstarted",owner:"",priority:false,note:"",subs:[]};
+      // insert after last item of this team to keep grouping order tidy
+      var lastIdx=-1; STATE.items.forEach(function(x,i){ if(primary(x)===team) lastIdx=i; });
+      if(lastIdx<0) STATE.items.push(it2); else STATE.items.splice(lastIdx+1,0,it2);
+      touch(); render(); save();
+      var nf=root.querySelector('[data-focus="title-'+it2.id+'"]'); if(nf) nf.focus();
+      return;
+    }
+  }
+
+  function onKeydown(e){
+    if(e.key!=="Enter") return;
+    var t=e.target, act=t.getAttribute&&t.getAttribute("data-act");
+    if(act==="subadd" && !READONLY){
+      e.preventDefault();
+      var val=t.value.trim(); if(!val) return;
+      var it=byId(t.getAttribute("data-id"));
+      if(it){ if(!it.subs)it.subs=[]; it.subs.push({t:val,done:false}); }
+      touch(); render(); save();
+      var nf=root.querySelector('[data-focus="subadd-'+t.getAttribute("data-id")+'"]'); if(nf) nf.focus();
+    }
+  }
+
+  root.addEventListener("input",onInput);
+  root.addEventListener("change",onChange);
+  root.addEventListener("click",onClick);
+  root.addEventListener("keydown",onKeydown);
+
+  /* ---------- theme ---------- */
+  function storedTheme(){ try{ return localStorage.getItem("sbt-theme"); }catch(e){ return null; } }
+  function currentTheme(){
+    var t=document.documentElement.getAttribute("data-theme");
+    if(t) return t;
+    return (window.matchMedia&&matchMedia("(prefers-color-scheme:dark)").matches)?"dark":"light";
+  }
+  function themeLabel(){ return currentTheme()==="dark"?"◑ Light":"◑ Dark"; }
+  function toggleTheme(){
+    var next=currentTheme()==="dark"?"light":"dark";
+    document.documentElement.setAttribute("data-theme",next);
+    try{ localStorage.setItem("sbt-theme",next); }catch(e){}
+    var btn=root.querySelector('[data-act="theme"]'); if(btn) btn.textContent=themeLabel();
+  }
+  (function initTheme(){ var s=storedTheme(); if(s) document.documentElement.setAttribute("data-theme",s); })();
+
+  /* ---------- sync indicator ---------- */
+  function syncMeta(){
+    switch(syncState){
+      case "saving":    return {cls:"is-saving",text:"Saving…"};
+      case "saved":     return {cls:"is-saved",text:"Saved · shared live"};
+      case "localidle": return {cls:"is-local",text:"On this device only — not shared"};
+      case "localsaved":return {cls:"is-local",text:"Saved on this device"};
+      case "readonly":  return {cls:"is-readonly",text:"View only"};
+      case "error":     return {cls:"is-error",text:"Couldn’t save"};
+      default:          return {cls:"",text:"Connecting…"};
+    }
+  }
+  function setSync(s){
+    syncState=s;
+    var el=document.getElementById("sync");
+    if(el){ var m=syncMeta(); el.className="sync "+m.cls; el.innerHTML='<span class="dot"></span>'+esc(m.text); }
+  }
+
+  /* ---------- persistence via artifact capability ---------- */
+  function buildDoc(state){
+    var styles=document.getElementById("app-style").textContent;
+    var code=document.getElementById("app-code").textContent;
+    var json=JSON.stringify(state).replace(/</g,"\\u003c");
+    return '<!doctype html>\n<html lang="en">\n<head>\n'
+      + '<meta charset="utf-8">\n'
+      + '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+      + '<title>Skills Build Tracker</title>\n'
+      + '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+      + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+      + '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,400&display=swap">\n'
+      + '<style id="app-style">'+styles+'</style>\n'
+      + '</head>\n<body>\n'
+      + '<div class="wrap"><div id="root"></div></div>\n'
+      + '<script id="app-state" type="application/json">'+json+'<\/script>\n'
+      + '<script id="app-code">'+code+'<\/script>\n'
+      + '</body>\n</html>';
+  }
+
+  function loadLocal(){
+    try{
+      var raw=localStorage.getItem("sbt-state");
+      if(raw){ var s=JSON.parse(raw); if(s&&Array.isArray(s.items)){ STATE=s; normalize(); return true; } }
+    }catch(e){}
+    return false;
+  }
+  function saveLocal(){ try{ localStorage.setItem("sbt-state",JSON.stringify(STATE)); return true; }catch(e){ return false; } }
+
+  var saveTimer=null, savePending=false, saving=false;
+  function save(){
+    if(READONLY) return;
+    if(artifact){
+      savePending=true;
+      setSync("saving");
+      if(saveTimer) clearTimeout(saveTimer);
+      saveTimer=setTimeout(flush,500);
+      return;
+    }
+    if(localMode){ setSync(saveLocal()?"localsaved":"error"); return; }
+    setSync("localidle"); // capability still resolving; keep the edit in memory
+  }
+  function flush(){
+    if(!artifact||saving||!savePending) return;
+    saving=true; savePending=false;
+    var payload;
+    try{ payload=buildDoc(STATE); }catch(e){ saving=false; setSync("error"); return; }
+    artifact.publish(payload).then(function(){
+      saving=false; setSync(savePending?"saving":"saved");
+      if(savePending){ saveTimer=setTimeout(flush,300); }
+    }).catch(function(err){
+      saving=false;
+      var code=(err&&(err.code||err.name)||"").toString();
+      if(code==="conflict"){ setSync("saved"); /* runtime reloads all views to the winner */ }
+      else if(code==="not_granted"||code==="not_writer"){
+        READONLY=true; document.body.classList.add("readonly"); setSync("readonly"); render();
+      } else {
+        setSync("error");
+      }
+    });
+  }
+
+  /* ---------- boot ---------- */
+  function goLocal(){
+    localMode=true;
+    var had=loadLocal();
+    render();
+    setSync(had?"localsaved":"localidle");
+  }
+
+  render();
+  (function connect(){
+    if(!(window.claude&&typeof window.claude.use==="function")){ goLocal(); return; }
+    window.claude.use("artifact").then(function(ns){
+      if(ns){ artifact=ns; setSync("saved"); }
+      else { goLocal(); }
+    }).catch(function(){ goLocal(); });
+  })();
+})();
+</script>

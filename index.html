@@ -1,500 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TeamCraft + Design Skills</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@0,400;0,500;0,600;0,700&family=IBM+Plex+Serif:wght@0,500;0,600&display=swap">
 <style>
-  :root { color-scheme: light; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #f5f5f7;
-    color: #1d1d1f;
-    padding: 24px 20px 48px;
-    min-height: 100vh;
+  :root{
+    --bg:#F2F4F8; --panel:#FFFFFF; --panel-2:#F8FAFC; --panel-3:#F1F4F8;
+    --ink:#141924; --ink-2:#48536A; --ink-3:#7C8698;
+    --line:#E3E8F0; --line-2:#EDF0F6;
+    --accent:#2F55E0; --accent-soft:#E6ECFD; --accent-line:#C4D2FA;
+    --shadow:0 1px 2px rgba(20,30,55,.05), 0 2px 6px rgba(20,30,55,.05);
+    --shadow-lift:0 14px 40px rgba(20,30,55,.14);
+    --focus:#2F55E0;
+    --craft:#6642D6; --craft-soft:rgba(102,66,214,.12);
+    --track:#2F55E0; --track-soft:rgba(47,85,224,.12);
+    --live:#127A3B; --live-soft:#DBF2E3;
   }
-
-  header { margin-bottom: 16px; }
-  header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; color: #1d1d1f; }
-  header p { font-size: 13px; color: #6e6e73; margin-top: 4px; }
-
-  /* Legend bar */
-  .legend {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-    padding: 11px 16px;
-    background: #fff;
-    border: 1px solid rgba(0,0,0,0.07);
-    border-radius: 12px;
-    font-size: 12px;
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0D1118; --panel:#151B25; --panel-2:#1A212D; --panel-3:#202836;
+      --ink:#E8ECF3; --ink-2:#A3AEC0; --ink-3:#6C7789;
+      --line:#252E3C; --line-2:#1E2632;
+      --accent:#6E90FF; --accent-soft:#1A263F; --accent-line:#2C3D63;
+      --shadow:0 1px 2px rgba(0,0,0,.35); --shadow-lift:0 16px 46px rgba(0,0,0,.55);
+      --focus:#6E90FF;
+      --craft:#A78BFA; --craft-soft:rgba(167,139,250,.15);
+      --track:#6E90FF; --track-soft:rgba(110,144,255,.15);
+      --live:#54C283; --live-soft:#112E1F;
+    }
   }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #3a3a3c;
-    font-weight: 500;
-  }
-  .legend-existing {
-    width: 32px; height: 18px;
-    border-radius: 5px;
-    border: 1.5px solid #d1d1d6;
-    background: #f5f5f7;
-  }
-  .legend-proposed {
-    width: 32px; height: 18px;
-    border-radius: 5px;
-    border: 2px dashed #a855f7;
-    background: #fdf4ff;
+  :root[data-theme="dark"]{
+    --bg:#0D1118; --panel:#151B25; --panel-2:#1A212D; --panel-3:#202836;
+    --ink:#E8ECF3; --ink-2:#A3AEC0; --ink-3:#6C7789;
+    --line:#252E3C; --line-2:#1E2632;
+    --accent:#6E90FF; --accent-soft:#1A263F; --accent-line:#2C3D63;
+    --shadow:0 1px 2px rgba(0,0,0,.35); --shadow-lift:0 16px 46px rgba(0,0,0,.55);
+    --focus:#6E90FF;
+    --craft:#A78BFA; --craft-soft:rgba(167,139,250,.15);
+    --track:#6E90FF; --track-soft:rgba(110,144,255,.15);
+    --live:#54C283; --live-soft:#112E1F;
   }
 
-  /* Tool banner */
-  .tool-banner { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
-  .tool-tag {
-    display: flex; align-items: center; gap: 6px;
-    padding: 5px 12px; border-radius: 100px;
-    font-size: 12px; font-weight: 500; border: 1px solid;
+  body{
+    font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+    background:var(--bg); color:var(--ink);
+    line-height:1.5; -webkit-font-smoothing:antialiased; min-height:100vh;
+    display:flex; flex-direction:column;
   }
-  .tool-tag.cowork { background: #eef3ff; border-color: #c7d7fd; color: #3451b2; }
-  .tool-tag.code   { background: #f0faf0; border-color: #b7dfb8; color: #1a7f37; }
-  .tool-tag .dot   { width: 7px; height: 7px; border-radius: 50%; }
-  .tool-tag.cowork .dot { background: #4263eb; }
-  .tool-tag.code .dot   { background: #1a7f37; }
+  .wrap{width:100%;max-width:920px;margin:0 auto;padding:64px 24px 48px;flex:1;
+    display:flex;flex-direction:column}
+  ::selection{background:var(--accent-soft)}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:10px}
 
-  /* Phase sections */
-  .phase {
-    margin-bottom: 16px;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    background: #fff;
-    border: 1px solid rgba(0,0,0,0.06);
-  }
-  .phase-header {
-    display: flex; align-items: center; gap: 14px;
-    padding: 16px 20px; cursor: pointer; user-select: none;
-    transition: background 0.15s;
-  }
-  .phase-header:hover { background: rgba(0,0,0,0.02); }
-  .phase-num {
-    width: 32px; height: 32px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; flex-shrink: 0; color: #fff;
-  }
-  .phase-meta { flex: 1; }
-  .phase-name { font-size: 15px; font-weight: 650; color: #1d1d1f; }
-  .phase-sub  { font-size: 12px; color: #6e6e73; margin-top: 2px; }
-  .phase-badges { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
-  .env-badge {
-    font-size: 11px; font-weight: 500; padding: 3px 9px;
-    border-radius: 100px; border: 1px solid;
-  }
-  .env-badge.cowork { background: #eef3ff; border-color: #c7d7fd; color: #3451b2; }
-  .env-badge.code   { background: #f0faf0; border-color: #b7dfb8; color: #1a7f37; }
-  .chevron { font-size: 14px; color: #aeaeb2; transition: transform 0.2s; }
-  .phase.open .chevron { transform: rotate(90deg); }
-  .phase-body {
-    display: none; padding: 0 20px 20px;
-    border-top: 1px solid #f0f0f2;
-  }
-  .phase.open .phase-body { display: block; }
+  .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
 
-  /* Skill cards grid */
-  .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 12px; margin-top: 16px;
+  /* ---- masthead ---- */
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-3);font-weight:500}
+  h1{font-family:"IBM Plex Serif",Georgia,serif;font-weight:600;font-size:38px;
+    letter-spacing:-.015em;line-height:1.08;margin-top:10px;text-wrap:balance}
+  .lede{color:var(--ink-2);font-size:16px;max-width:56ch;margin-top:12px}
+
+  .toolbtn{font:inherit;font-size:12px;color:var(--ink-2);cursor:pointer;flex-shrink:0;
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:7px 12px;box-shadow:var(--shadow)}
+  .toolbtn:hover{color:var(--ink);border-color:var(--ink-3)}
+
+  /* ---- cards ---- */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:44px}
+  .card{position:relative;display:flex;flex-direction:column;text-decoration:none;color:inherit;
+    background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 24px 22px;
+    box-shadow:var(--shadow);overflow:hidden;
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease}
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--c)}
+  .card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);border-color:var(--c)}
+
+  .kicker{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--c);background:var(--c-soft);border-radius:6px;padding:4px 9px}
+  .kicker .d{width:7px;height:7px;border-radius:50%;background:var(--c)}
+
+  .card h2{font-family:"IBM Plex Serif",Georgia,serif;font-weight:600;font-size:22px;
+    letter-spacing:-.01em;margin-top:16px}
+  .card p{font-size:14px;color:var(--ink-2);margin-top:9px;flex:1}
+
+  .foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px}
+  .meta{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);
+    display:flex;align-items:center;gap:7px}
+  .meta .pill{color:var(--live);background:var(--live-soft);border-radius:100px;
+    padding:2px 8px;font-weight:600;letter-spacing:.02em}
+  .go{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;
+    border-radius:50%;background:var(--c-soft);color:var(--c);flex-shrink:0;
+    transition:transform .18s ease}
+  .card:hover .go{transform:translateX(3px)}
+
+  .craft{--c:var(--craft);--c-soft:var(--craft-soft)}
+  .track{--c:var(--track);--c-soft:var(--track-soft)}
+
+  /* ---- note ---- */
+  .note{margin-top:26px;display:flex;gap:11px;align-items:flex-start;
+    background:var(--panel-2);border:1px solid var(--line-2);border-radius:12px;
+    padding:14px 16px;font-size:13px;color:var(--ink-2);line-height:1.55;max-width:70ch}
+  .note svg{flex-shrink:0;color:var(--ink-3);margin-top:2px}
+  .note b{color:var(--ink);font-weight:600}
+
+  footer{border-top:1px solid var(--line);padding:20px 24px;
+    font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);
+    text-align:center;letter-spacing:.02em}
+
+  @media (max-width:680px){
+    .wrap{padding:44px 18px 36px}
+    h1{font-size:30px}
+    .cards{grid-template-columns:1fr;gap:14px}
   }
-  .skill-card {
-    border-radius: 12px; padding: 14px 16px;
-    border: 1.5px solid; cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    position: relative;
-  }
-  .skill-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.09); }
-
-  /* Proposed skill card style */
-  .skill-card.proposed {
-    border-style: dashed;
-    border-width: 2px;
-    border-color: #a855f7 !important;
-    background: #fdf4ff !important;
-  }
-  .skill-card.proposed .skill-name { color: #7e22ce !important; }
-
-  /* Proposed badge */
-  .proposed-badge {
-    position: absolute;
-    top: 10px; right: 10px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    padding: 2px 8px;
-    border-radius: 100px;
-    background: #a855f7;
-    color: #fff;
-    text-transform: uppercase;
-  }
-
-  .skill-name {
-    font-size: 13px; font-weight: 650;
-    font-family: 'SF Mono', 'Menlo', 'Fira Code', monospace;
-    margin-bottom: 8px;
-    padding-right: 60px;
-  }
-  .skill-desc { font-size: 12px; line-height: 1.5; color: #444; }
-  .skill-detail {
-    display: none; margin-top: 10px; padding-top: 10px;
-    border-top: 1px solid rgba(0,0,0,0.08);
-    font-size: 12px; line-height: 1.6; color: #555;
-  }
-  .skill-card.expanded .skill-detail { display: block; }
-
-  /* Phase color themes */
-  .p1 .phase-num { background: #5856d6; }
-  .p1 .skill-card { background: #f7f6ff; border-color: #dddafb; }
-  .p1 .skill-name { color: #5856d6; }
-
-  .p2 .phase-num { background: #f59e0b; }
-  .p2 .skill-card { background: #fffbeb; border-color: #fde68a; }
-  .p2 .skill-name { color: #b45309; }
-
-  .p3 .phase-num { background: #1a7f37; }
-  .p3 .skill-card { background: #f0faf0; border-color: #b7dfb8; }
-  .p3 .skill-name { color: #1a7f37; }
-
-  .p4 .phase-num { background: #0ea5e9; }
-  .p4 .skill-card { background: #f0f9ff; border-color: #bae6fd; }
-  .p4 .skill-name { color: #0369a1; }
-
-  .p5 .phase-num { background: #e11d48; }
-  .p5 .skill-card { background: #fff1f2; border-color: #fecdd3; }
-  .p5 .skill-name { color: #be123c; }
-
-  .p6 .phase-num { background: #7c3aed; }
-  .p6 .skill-card { background: #f5f3ff; border-color: #ddd6fe; }
-  .p6 .skill-name { color: #6d28d9; }
-
-  /* Tip boxes */
-  .tip {
-    background: #f7f6ff; border: 1px solid #dddafb;
-    border-radius: 10px; padding: 11px 14px;
-    font-size: 12px; color: #4c3d9e;
-    margin-top: 14px; line-height: 1.5;
-  }
-  .tip strong { font-weight: 650; }
-  .tip.design {
-    background: #fdf4ff;
-    border-color: #e9d5ff;
-    color: #6b21a8;
-  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <div class="eyebrow">Product · Engineering · Design</div>
+        <h1>Skills Workbench</h1>
+        <p class="lede">Home for how we build with skills and where each one stands — the workflow our team runs on, and the live board tracking what's shipping.</p>
+      </div>
+      <button class="toolbtn" id="themeBtn" type="button">◑ Theme</button>
+    </div>
 
-<header>
-  <h1>TeamCraft + Design — Proposed Skills</h1>
-  <p>Existing lifecycle with four new design skills incorporated. Click a phase to expand, click a card for details.</p>
-</header>
+    <div class="cards">
+      <a class="card craft" href="teamcraft.html">
+        <span class="kicker"><span class="d"></span>Workflow map</span>
+        <h2>TeamCraft + Design Skills</h2>
+        <p>The end-to-end team workflow — the existing TeamCraft skills plus the proposed design skills — mapped across six phases, from team setup through continuous improvement. Click a phase to expand, a card for detail.</p>
+        <div class="foot">
+          <span class="meta">Reference</span>
+          <span class="go" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </div>
+      </a>
 
-<div class="legend">
-  <div class="legend-item">
-    <div class="legend-existing"></div>
-    Existing TeamCraft skill
-  </div>
-  <div class="legend-item">
-    <div class="legend-proposed"></div>
-    Proposed new design skill
-  </div>
-</div>
+      <a class="card track" href="tracker.html">
+        <span class="kicker"><span class="d"></span>Live board</span>
+        <h2>Skills Build Tracker</h2>
+        <p>Where every skill, feature, and process on the roadmap stands across Product, Engineering, and Design. Change a status, claim an owner, tick off the steps, filter by team.</p>
+        <div class="foot">
+          <span class="meta"><span class="pill">Interactive</span>shared progress</span>
+          <span class="go" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </div>
+      </a>
+    </div>
 
-<div class="tool-banner">
-  <div class="tool-tag cowork"><span class="dot"></span>Claude Cowork — Phases 1, 2, 5, 6</div>
-  <div class="tool-tag code"><span class="dot"></span>Claude Code — Phases 3, 4</div>
-</div>
+    <div class="note">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5" stroke-linecap="round"/></svg>
+      <div>The tracker on this site saves each person's changes to their own browser. For the <b>one board everyone edits together</b>, use the shared Claude artifact link and invite colleagues from its Share menu.</div>
+    </div>
+  </div>
 
-<!-- PHASE 1 -->
-<div class="phase p1 open">
-  <div class="phase-header" onclick="toggle(this)">
-    <div class="phase-num">1</div>
-    <div class="phase-meta">
-      <div class="phase-name">Team Setup</div>
-      <div class="phase-sub">Run once per project — creates the scaffolding everything else depends on</div>
-    </div>
-    <div class="phase-badges">
-      <span class="env-badge cowork">Cowork</span>
-      <span class="env-badge code">Code</span>
-    </div>
-    <span class="chevron">›</span>
-  </div>
-  <div class="phase-body">
-    <div class="tip design">✦ <strong>New in this phase:</strong> <code>design-audit</code> — gives designers the same project orientation that <code>analyze-codebase</code> gives engineers.</div>
-    <div class="skills-grid">
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">teamcraft-setup</div>
-        <div class="skill-desc">Verifies Jira, Confluence, and GitHub connections. Nothing else functions without this.</div>
-        <div class="skill-detail">The prerequisite for all other TeamCraft skills. Checks that your MCP connections to Atlassian and GitHub are authenticated and working. If any connection is broken, it guides you through fixing it before you waste time on downstream skills.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">init-project</div>
-        <div class="skill-desc">Creates CLAUDE.md, project.md, .claude/rules/, and CI workflows — the local project context every developer session loads automatically.</div>
-        <div class="skill-detail">Sets up the project scaffold that every developer session loads automatically. Without it, plan-and-implement-issue starts cold with no project awareness. Includes GitHub Actions CI config with test, lint, and security jobs.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">analyze-codebase</div>
-        <div class="skill-desc">Maps an existing codebase — architecture docs, ADR candidates, component rules, and convention gaps.</div>
-        <div class="skill-detail">Essential for brownfield projects. Runs a quick-pass analysis (tech stack, structure, patterns), then offers deeper output: architecture documentation, component-level rules, ADR candidates, and a comparison against team conventions.</div>
-      </div>
-      <div class="skill-card proposed" onclick="expandSkill(this)">
-        <span class="proposed-badge">New</span>
-        <div class="skill-name">design-audit</div>
-        <div class="skill-desc">Inventories the existing UI — component patterns, design system coverage, visual inconsistencies, and accessibility gaps — before the project begins.</div>
-        <div class="skill-detail">The design counterpart to analyze-codebase. Connects to Figma to map what components and patterns already exist, flags where the live UI diverges from the design system, and surfaces accessibility or consistency issues that should be resolved before new work layers on top. Produces a design health summary in Confluence that feeds into capture-requirements and define-roadmap.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">learn-teamcraft</div>
-        <div class="skill-desc">Teaches the workflow — full overview or role-specific deep dive. No environment access needed.</div>
-        <div class="skill-detail">Run it any time you want to understand the plugin better, onboard a new team member, or refresh on how the phases connect. Advisory only — never starts work.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">onboard</div>
-        <div class="skill-desc">Orients a new team member by reading Jira, GitHub, and Confluence project artifacts, then explaining the current state.</div>
-        <div class="skill-detail">Run when joining an existing project mid-sprint. Reads live project data and explains what's in progress, what's been decided, and how the team works. Advisory only — never starts work or modifies anything.</div>
-      </div>
-    </div>
-  </div>
-</div>
+  <footer>Internal · updated as the roadmap moves</footer>
 
-<!-- PHASE 2 -->
-<div class="phase p2">
-  <div class="phase-header" onclick="toggle(this)">
-    <div class="phase-num">2</div>
-    <div class="phase-meta">
-      <div class="phase-name">Product Definition & Planning</div>
-      <div class="phase-sub">Where everything the team builds originates — upstream collaboration before a single line of code is written</div>
-    </div>
-    <div class="phase-badges">
-      <span class="env-badge cowork">Cowork</span>
-    </div>
-    <span class="chevron">›</span>
-  </div>
-  <div class="phase-body">
-    <div class="tip"><strong>The upstream anchor phase.</strong> The PRD, roadmap, tech decisions, and sprint issues produced here are auto-loaded into every developer planning session. Quality here = less ambiguity downstream.</div>
-    <div class="tip design" style="margin-top:10px">✦ <strong>New in this phase:</strong> <code>design-handoff</code> closes the gap between design completion and developer pickup — replacing informal Figma links with a structured, loadable spec.</div>
-    <div class="skills-grid">
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">discover-problem</div>
-        <div class="skill-desc">Facilitate structured discovery with a client or stakeholder before requirements are written. Produces a Confluence summary seeding capture-requirements.</div>
-        <div class="skill-detail">Run during a meeting or call. Guides structured exploration of a problem space to produce a sharp problem statement. Surfacing user needs, mental models, and edge cases here shapes what gets built. Output lands in Confluence and feeds directly into capture-requirements.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">capture-requirements</div>
-        <div class="skill-desc">Run a live requirements session, generate visual mockups to confirm understanding, and produce a structured PRD in Confluence.</div>
-        <div class="skill-detail">The primary requirements tool. Generates interactive visual mockups during the session so clients can validate understanding before it becomes a spec. Mockups and interaction intent captured in the PRD reduce rework during implementation.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">define-roadmap</div>
-        <div class="skill-desc">The planning layer between the PRD and sprint work — sequences what gets built across sprints, with priorities and dependencies.</div>
-        <div class="skill-detail">Sits between a baselined PRD and sprint planning. Answers: what gets built in what order, across how many sprints, and why? Flags which sprints need design-heavy lead time and where dependencies might affect sequencing. Stored in Confluence, feeds directly into plan-sprint.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">plan-sprint</div>
-        <div class="skill-desc">Turns the PRD into Jira backlog issues with acceptance criteria, creates the sprint, and adds issues to it.</div>
-        <div class="skill-detail">Creates well-formed Jira issues with acceptance criteria, technical guidance, and testing requirements from the PRD. Creates the sprint and adds the issues to it. The quality of issues here directly determines the quality of what developers build.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">create-issue</div>
-        <div class="skill-desc">Create a single Jira issue at any time — ad-hoc bugs, mid-sprint requests, client feedback, or design findings.</div>
-        <div class="skill-detail">For work that arrives outside sprint planning. Same quality standards as plan-sprint issues. Useful for filing issues when design reviews surface problems, inconsistencies, or missing interactions that need to be tracked and fixed.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">tech-decisions</div>
-        <div class="skill-desc">Records the technology stack and key architectural choices in Confluence — auto-loaded into every developer planning session.</div>
-        <div class="skill-detail">These decisions are invisibly loaded into every plan-and-implement-issue session. Without it, each developer independently chooses libraries and patterns — and those choices diverge over time.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">capture-conventions</div>
-        <div class="skill-desc">Documents coding standards, review process, and branching rules in Confluence — flows into developer sessions automatically.</div>
-        <div class="skill-detail">Provides the scaffolding that makes the build loop produce consistent, review-ready code. The conventions captured here affect how design specs get implemented in practice.</div>
-      </div>
-      <div class="skill-card proposed" onclick="expandSkill(this)">
-        <span class="proposed-badge">New</span>
-        <div class="skill-name">design-handoff</div>
-        <div class="skill-desc">Packages Figma frames, interaction notes, component specs, and open design decisions into a structured document loaded automatically by plan-and-implement-issue.</div>
-        <div class="skill-detail">Currently, design intent reaches developers as an informal Figma link in a Jira ticket — if that. This skill formalizes the handoff: pulling the relevant Figma frames for the sprint's issues, annotating interaction intent, flagging open decisions that need developer input, and producing a structured handoff document in Confluence. plan-and-implement-issue loads this alongside the PRD so developers plan against real design specs, not assumptions. Requires Figma connection.</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- PHASE 3 -->
-<div class="phase p3">
-  <div class="phase-header" onclick="toggle(this)">
-    <div class="phase-num">3</div>
-    <div class="phase-meta">
-      <div class="phase-name">Build Loop</div>
-      <div class="phase-sub">Repeated for every issue — the developer's daily rhythm in Claude Code</div>
-    </div>
-    <div class="phase-badges">
-      <span class="env-badge code">Code only</span>
-    </div>
-    <span class="chevron">›</span>
-  </div>
-  <div class="phase-body">
-    <div class="tip"><strong>How upstream work reaches developers:</strong> plan-and-implement-issue auto-loads the PRD, tech decisions, and team conventions. With <code>design-handoff</code> in place, Figma specs and interaction notes load here too — no separate handoff needed.</div>
-    <div class="skills-grid">
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">fetch-issue</div>
-        <div class="skill-desc">Loads the Jira issue and scans the codebase for relevant existing code before any planning begins.</div>
-        <div class="skill-detail">The starting point for every piece of work. Answers: is this issue ready to build, partially started, already implemented, or blocked? Produces a feasibility assessment. Read-only — no changes made here.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">plan-and-implement-issue</div>
-        <div class="skill-desc">Loads all project context, enters plan mode, creates the feature branch, opens a Draft PR, and implements with TDD discipline unit by unit.</div>
-        <div class="skill-detail">The core build skill. Loads tech decisions, conventions, PRD context, and live library docs — then plans and implements the solution. With design-handoff in place, Figma specs and interaction intent load here automatically. Developer reviews after each unit before proceeding.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">complete-issue</div>
-        <div class="skill-desc">Runs code health, security, and deviation reviews automatically. Pushes the branch and marks the PR ready for human review.</div>
-        <div class="skill-detail">The automated quality gate before any human sees the PR. Runs three checks: code health, security scan, and deviation review. Then pushes and marks the Draft PR ready.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">fast-path</div>
-        <div class="skill-desc">Urgent work that can't wait for sprint planning — skips ceremony but preserves all quality gates.</div>
-        <div class="skill-detail">For production bugs, critical fixes, and emergency work. Streamlines the path from issue to PR without sprint planning ceremony. All quality gates still apply — fast-path removes ceremony, not safety.</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- PHASE 4 -->
-<div class="phase p4">
-  <div class="phase-header" onclick="toggle(this)">
-    <div class="phase-num">4</div>
-    <div class="phase-meta">
-      <div class="phase-name">Review & Merge</div>
-      <div class="phase-sub">PR feedback loop through to merge and Jira closure</div>
-    </div>
-    <div class="phase-badges">
-      <span class="env-badge code">Code only</span>
-    </div>
-    <span class="chevron">›</span>
-  </div>
-  <div class="phase-body">
-    <div class="tip design">✦ <strong>New in this phase:</strong> <code>design-review</code> — the highest-impact addition. Adds a design gate alongside the existing code review so visual drift is caught before merge, not after.</div>
-    <div class="skills-grid">
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">pr-review</div>
-        <div class="skill-desc">Reviewer's tool — reads the full PR diff and comment threads, leaves feedback, approves or merges without leaving Claude Code.</div>
-        <div class="skill-detail">Loads the full PR diff, implementation context, and open discussion threads. Reviewer can leave structured comments, respond to threads, request changes, approve, or merge — all from the CLI without switching to the GitHub UI.</div>
-      </div>
-      <div class="skill-card proposed" onclick="expandSkill(this)">
-        <span class="proposed-badge">New</span>
-        <div class="skill-name">design-review</div>
-        <div class="skill-desc">Pulls the relevant Figma frames for the PR and compares them against the implementation — flags drift, missing states, and interaction gaps before merge.</div>
-        <div class="skill-detail">The most critical missing step in the current workflow. Runs alongside pr-review and answers: does what was built match what was designed? Connects to Figma to pull the spec frames for the relevant issue, takes a screenshot of the implementation, and produces a structured comparison — flagging visual drift, missing interaction states, accessibility issues, and spacing/typography deviations. Leaves review comments on the PR just like pr-review. Requires Figma connection.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">address-feedback</div>
-        <div class="skill-desc">Author's tool — polls for open reviewer threads, makes code changes, and pushes updates.</div>
-        <div class="skill-detail">Surfaces all open PR threads — including design-review threads — and helps the author decide what to change vs. reply to. Makes the changes and pushes. Leaves the PR ready for the reviewer's next pass.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">post-merge</div>
-        <div class="skill-desc">After merge: explicitly closes the Jira issue, cleans up stale status, and syncs local git state.</div>
-        <div class="skill-detail">⚠️ Important: GitHub PRs do NOT auto-close Jira issues. Without this step, tickets stay open even after code ships. post-merge explicitly transitions the Jira issue to Done and syncs local git.</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- PHASE 5 -->
-<div class="phase p5">
-  <div class="phase-header" onclick="toggle(this)">
-    <div class="phase-num">5</div>
-    <div class="phase-meta">
-      <div class="phase-name">Visibility</div>
-      <div class="phase-sub">Available to anyone at any time — no codebase access needed</div>
-    </div>
-    <div class="phase-badges">
-      <span class="env-badge cowork">Cowork</span>
-    </div>
-    <span class="chevron">›</span>
-  </div>
-  <div class="phase-body">
-    <div class="tip design">✦ <strong>New in this phase:</strong> <code>design-qa</code> — makes design findings as trackable as engineering bugs, captured as properly formed Jira issues rather than Slack threads.</div>
-    <div class="skills-grid">
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">project-health</div>
-        <div class="skill-desc">On-demand sprint health — progress, velocity, quality signals, defect trends. Returns insight, not raw data.</div>
-        <div class="skill-detail">Pull a health snapshot at any time. Synthesizes Jira sprint data and GitHub signals into an interpreted summary with flags and recommendations, not just numbers.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">stakeholder-update</div>
-        <div class="skill-desc">Generate audience-appropriate status reports from live Jira + GitHub data — client update, exec summary, engineering digest.</div>
-        <div class="skill-detail">Pulls live sprint and PR data and shapes it for its audience. A client update emphasizes what shipped and what's next. An exec summary focuses on risk and timeline. Stored in Confluence.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">pipeline-health</div>
-        <div class="skill-desc">When CI breaks or stalls, explains what failed and why in plain language. Can create a Jira issue from persistent failures.</div>
-        <div class="skill-detail">Interprets GitHub Actions workflow failures in plain language. Returns: what failed, why, and suggested next steps — not raw logs.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">qa-support</div>
-        <div class="skill-desc">Surfaces what's ready to test in the current sprint. Prepares test approaches and captures bugs as properly formed Jira issues.</div>
-        <div class="skill-detail">Works without codebase access. Use to understand what's ready for testing, prepare a structured test approach for a specific issue, or capture a bug as a properly formed Jira issue with reproduction steps and severity.</div>
-      </div>
-      <div class="skill-card proposed" onclick="expandSkill(this)">
-        <span class="proposed-badge">New</span>
-        <div class="skill-name">design-qa</div>
-        <div class="skill-desc">Captures design findings from review sessions as properly formed Jira issues — visual bugs, missing states, accessibility issues, and interaction gaps.</div>
-        <div class="skill-detail">The design counterpart to qa-support. When a designer reviews shipped features and finds issues — a truncated label, a missing hover state, a color that doesn't meet contrast ratios — this skill turns those findings into properly formed Jira issues rather than Slack threads or sticky notes. Each issue includes the relevant Figma frame, a description of the expected vs. actual state, severity, and suggested fix. Works without codebase access.</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- PHASE 6 -->
-<div class="phase p6">
-  <div class="phase-header" onclick="toggle(this)">
-    <div class="phase-num">6</div>
-    <div class="phase-meta">
-      <div class="phase-name">Continuous Improvement</div>
-      <div class="phase-sub">Retrospectives and living documentation — keeps the system healthy over time</div>
-    </div>
-    <div class="phase-badges">
-      <span class="env-badge cowork">Cowork</span>
-    </div>
-    <span class="chevron">›</span>
-  </div>
-  <div class="phase-body">
-    <div class="skills-grid">
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">sprint-retro</div>
-        <div class="skill-desc">Structured sprint retrospective from Jira data — facilitates the conversation and writes the report to Confluence.</div>
-        <div class="skill-detail">Gathers sprint data via an analysis agent, then facilitates the retrospective conversation — what went well, what didn't, what to try next. Captures team insights and writes a structured report to Confluence. A whole-team activity.</div>
-      </div>
-      <div class="skill-card" onclick="expandSkill(this)">
-        <div class="skill-name">sync-project-docs</div>
-        <div class="skill-desc">Keeps CLAUDE.md and project rules current as the project evolves — adds new patterns, removes stale ones.</div>
-        <div class="skill-detail">Run mid-ticket, end of sprint, or whenever the codebase drifts from what CLAUDE.md describes. Audits current docs against the live codebase and proposes updates.</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-  function toggle(header) {
-    header.closest('.phase').classList.toggle('open');
-  }
-  function expandSkill(card) {
-    card.classList.toggle('expanded');
-  }
-</script>
+  <script>
+    (function(){
+      var btn=document.getElementById("themeBtn");
+      function stored(){ try{ return localStorage.getItem("sw-theme"); }catch(e){ return null; } }
+      function current(){
+        var t=document.documentElement.getAttribute("data-theme");
+        if(t) return t;
+        return (window.matchMedia&&matchMedia("(prefers-color-scheme:dark)").matches)?"dark":"light";
+      }
+      var s=stored(); if(s) document.documentElement.setAttribute("data-theme",s);
+      btn.addEventListener("click",function(){
+        var next=current()==="dark"?"light":"dark";
+        document.documentElement.setAttribute("data-theme",next);
+        try{ localStorage.setItem("sw-theme",next); }catch(e){}
+      });
+    })();
+  </script>
 </body>
 </html>
