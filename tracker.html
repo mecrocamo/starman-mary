@@ -417,8 +417,11 @@
   }
 
   function foot(){
+    if(READONLY){
+      return '<footer><span>Starman Process V0 — read-only snapshot.</span></footer>';
+    }
     return '<footer>'
-      + '<span>Starman Process V0 · set a status; the board saves for everyone with access.</span>'
+      + '<span>Starman Process V0</span>'
       + '<span class="saved">Last saved: '+esc(fmtTime(STATE.meta&&STATE.meta.updatedAt))+'</span>'
       + '</footer>';
   }
