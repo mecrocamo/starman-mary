@@ -21,6 +21,7 @@
     --focus:#2F55E0;
     --craft:#6642D6; --craft-soft:rgba(102,66,214,.12);
     --track:#2F55E0; --track-soft:rgba(47,85,224,.12);
+    --figma:#0E8C86; --figma-soft:rgba(14,140,134,.12);
     --live:#127A3B; --live-soft:#DBF2E3;
   }
   @media (prefers-color-scheme:dark){
@@ -33,6 +34,7 @@
       --focus:#6E90FF;
       --craft:#A78BFA; --craft-soft:rgba(167,139,250,.15);
       --track:#6E90FF; --track-soft:rgba(110,144,255,.15);
+      --figma:#48D3CD; --figma-soft:rgba(72,211,205,.15);
       --live:#54C283; --live-soft:#112E1F;
     }
   }
@@ -45,6 +47,7 @@
     --focus:#6E90FF;
     --craft:#A78BFA; --craft-soft:rgba(167,139,250,.15);
     --track:#6E90FF; --track-soft:rgba(110,144,255,.15);
+    --figma:#48D3CD; --figma-soft:rgba(72,211,205,.15);
     --live:#54C283; --live-soft:#112E1F;
   }
 
@@ -104,6 +107,7 @@
 
   .craft{--c:var(--craft);--c-soft:var(--craft-soft)}
   .track{--c:var(--track);--c-soft:var(--track-soft)}
+  .figma{--c:var(--figma);--c-soft:var(--figma-soft)}
 
   /* ---- note ---- */
   .note{margin-top:26px;display:flex;gap:11px;align-items:flex-start;
@@ -154,6 +158,18 @@
         <p>Where each prioritized item stands across Product, Engineering, and Design. Set a status on any item and filter by team — a clean, at-a-glance read on the work.</p>
         <div class="foot">
           <span class="meta"><span class="pill">Live status</span>shared progress</span>
+          <span class="go" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <a class="card figma" href="versioning.html">
+        <span class="kicker"><span class="d"></span>Playbook</span>
+        <h2>Design Versioning Playbook</h2>
+        <p>How the design team names, saves, branches, and hands off work in Figma on the Organization plan — file structure, named versions, branching rules, annotations, and the 30-day rollout.</p>
+        <div class="foot">
+          <span class="meta">Reference</span>
           <span class="go" aria-hidden="true">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </span>
