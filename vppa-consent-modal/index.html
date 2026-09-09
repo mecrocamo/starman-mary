@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VPPA Consent Modal — Package</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@0,400;0,500;0,600;0,700&family=IBM+Plex+Serif:wght@0,500;0,600&display=swap">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+
+  :root{
+    --bg:#F2F4F8; --panel:#FFFFFF; --panel-2:#F8FAFC; --panel-3:#F1F4F8;
+    --ink:#141924; --ink-2:#48536A; --ink-3:#7C8698;
+    --line:#E3E8F0; --line-2:#EDF0F6;
+    --accent:#2638C4; --accent-soft:#E7EAFB; --accent-line:#C4D2FA;
+    --shadow:0 1px 2px rgba(20,30,55,.05), 0 2px 6px rgba(20,30,55,.05);
+    --shadow-lift:0 14px 40px rgba(20,30,55,.14);
+    --focus:#2638C4;
+    --live:#127A3B; --live-soft:#DBF2E3;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0D1118; --panel:#151B25; --panel-2:#1A212D; --panel-3:#202836;
+      --ink:#E8ECF3; --ink-2:#A3AEC0; --ink-3:#6C7789;
+      --line:#252E3C; --line-2:#1E2632;
+      --accent:#7285F4; --accent-soft:#1B2247; --accent-line:#2C3D63;
+      --shadow:0 1px 2px rgba(0,0,0,.35); --shadow-lift:0 16px 46px rgba(0,0,0,.55);
+      --focus:#7285F4;
+      --live:#54C283; --live-soft:#112E1F;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0D1118; --panel:#151B25; --panel-2:#1A212D; --panel-3:#202836;
+    --ink:#E8ECF3; --ink-2:#A3AEC0; --ink-3:#6C7789;
+    --line:#252E3C; --line-2:#1E2632;
+    --accent:#7285F4; --accent-soft:#1B2247; --accent-line:#2C3D63;
+    --shadow:0 1px 2px rgba(0,0,0,.35); --shadow-lift:0 16px 46px rgba(0,0,0,.55);
+    --focus:#7285F4;
+    --live:#54C283; --live-soft:#112E1F;
+  }
+
+  body{font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;
+    min-height:100vh;display:flex;flex-direction:column}
+  .wrap{width:100%;max-width:940px;margin:0 auto;padding:52px 24px 48px;flex:1}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:8px}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+  a{color:inherit}
+
+  .back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-3);
+    text-decoration:none;font-family:"IBM Plex Mono",monospace}
+  .back:hover{color:var(--ink-2)}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-top:26px}
+  h1{font-family:"IBM Plex Serif",Georgia,serif;font-weight:600;font-size:36px;
+    letter-spacing:-.015em;line-height:1.08;margin-top:10px;text-wrap:balance}
+  .lede{color:var(--ink-2);font-size:16px;max-width:62ch;margin-top:12px}
+
+  /* hero actions */
+  .hero{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+  .btn{display:inline-flex;align-items:center;gap:9px;text-decoration:none;
+    border-radius:11px;padding:13px 17px;font-size:14px;font-weight:600;
+    border:1px solid var(--line);background:var(--panel);color:var(--ink);box-shadow:var(--shadow);
+    transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease}
+  .btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{border-color:var(--accent)}
+  .btn svg{flex-shrink:0}
+  .btn small{display:block;font-weight:400;font-size:11.5px;opacity:.8;margin-top:1px}
+  .btn .stack{display:flex;flex-direction:column;line-height:1.15}
+
+  /* section groups */
+  .group{margin-top:40px}
+  .group>h2{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:14px;
+    display:flex;align-items:center;gap:10px}
+  .group>h2::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  .list{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;box-shadow:var(--shadow)}
+  .row{display:flex;align-items:center;gap:14px;padding:15px 18px;text-decoration:none;
+    color:inherit;border-top:1px solid var(--line-2)}
+  .row:first-child{border-top:0}
+  .row:hover{background:var(--panel-2)}
+  .row .ic{width:34px;height:34px;flex-shrink:0;border-radius:9px;display:flex;
+    align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent)}
+  .row .txt{flex:1;min-width:0}
+  .row .txt .t{font-size:14.5px;font-weight:600;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .row .txt .d{font-size:13px;color:var(--ink-2);margin-top:2px}
+  .row .path{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);
+    background:var(--panel-3);border:1px solid var(--line-2);border-radius:6px;padding:2px 7px;white-space:nowrap}
+  .row .arrow{color:var(--ink-3);flex-shrink:0}
+  .row:hover .arrow{color:var(--accent)}
+  .tag{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.04em;font-weight:600;
+    color:var(--live);background:var(--live-soft);border-radius:5px;padding:2px 7px}
+  .tag.ext{color:var(--accent);background:var(--accent-soft)}
+
+  .note{margin-top:34px;display:flex;gap:11px;align-items:flex-start;
+    background:var(--panel-2);border:1px solid var(--line-2);border-radius:12px;
+    padding:15px 17px;font-size:13px;color:var(--ink-2);line-height:1.55;max-width:74ch}
+  .note svg{flex-shrink:0;color:var(--ink-3);margin-top:2px}
+  .note b{color:var(--ink);font-weight:600}
+
+  footer{border-top:1px solid var(--line);padding:20px 24px;
+    font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);
+    text-align:center;letter-spacing:.02em}
+
+  @media (max-width:640px){.wrap{padding:36px 16px}h1{font-size:29px}.row .path{display:none}}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="../index.html">← Skills Workbench</a>
+
+    <div class="eyebrow">PBS Apps Design System · CTV</div>
+    <h1>VPPA Consent Modal</h1>
+    <p class="lede">The connected-TV privacy-consent overlay, built once as design tokens plus a
+      component spec that port to HTML smart TVs, tvOS, Android TV, and Roku. Everything in the
+      package is linked below — open the live demo, or view any source file on GitHub.</p>
+
+    <div class="hero">
+      <a class="btn primary" href="vppa-modal.html">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        <span class="stack">Open the live demo<small>Runnable HTML · D-pad focus</small></span>
+      </a>
+      <a class="btn" href="https://claude.ai/code/artifact/b98f9026-4d4e-4774-a96f-82788164c76c" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H4z"/><path d="M2 20h20"/></svg>
+        <span class="stack">Shareable interactive page<small>Claude Artifact · send to colleagues</small></span>
+      </a>
+      <a class="btn" href="https://github.com/mecrocamo/starman-mary/tree/main/vppa-consent-modal" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h9l2 3h5v13H4z"/></svg>
+        <span class="stack">Browse the folder<small>All files on GitHub</small></span>
+      </a>
+    </div>
+
+    <!-- Source of truth -->
+    <div class="group">
+      <h2>Source of truth</h2>
+      <div class="list">
+        <a class="row" href="https://github.com/mecrocamo/starman-mary/blob/main/vppa-consent-modal/tokens.json" target="_blank" rel="noopener">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18M3 12h18"/></svg></span>
+          <span class="txt"><span class="t">Design tokens</span><span class="d">Every color, type style, dimension, and effect as W3C design tokens.</span></span>
+          <span class="path">tokens.json</span>
+          <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+        <a class="row" href="https://github.com/mecrocamo/starman-mary/blob/main/vppa-consent-modal/component-spec.json" target="_blank" rel="noopener">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+          <span class="txt"><span class="t">Component spec</span><span class="d">Framework-neutral structure, states, and D-pad behavior, bound to token names.</span></span>
+          <span class="path">component-spec.json</span>
+          <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Reference + docs -->
+    <div class="group">
+      <h2>Reference &amp; docs</h2>
+      <div class="list">
+        <a class="row" href="vppa-modal.html">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+          <span class="txt"><span class="t">HTML implementation <span class="tag">live</span></span><span class="d">The runnable HTML-smart-TV build and visual gold standard. Arrow keys move focus, Enter selects.</span></span>
+          <span class="path">vppa-modal.html</span>
+          <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+        <a class="row" href="https://github.com/mecrocamo/starman-mary/blob/main/vppa-consent-modal/README.md" target="_blank" rel="noopener">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg></span>
+          <span class="txt"><span class="t">Overview</span><span class="d">Why the package is shaped this way and how a single token change stays in lockstep.</span></span>
+          <span class="path">README.md</span>
+          <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+        <a class="row" href="https://github.com/mecrocamo/starman-mary/blob/main/vppa-consent-modal/PORTING.md" target="_blank" rel="noopener">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M4 12l4-4M4 12l4 4M20 6v12"/></svg></span>
+          <span class="txt"><span class="t">Porting guide</span><span class="d">Token &amp; spec mapping and starter snippets for tvOS, Android TV, and Roku.</span></span>
+          <span class="path">PORTING.md</span>
+          <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Native platform code -->
+    <div class="group">
+      <h2>Native platform code</h2>
+      <div class="list">
+        <a class="row" href="https://github.com/mecrocamo/starman-mary/blob/main/vppa-consent-modal/platforms/tvos/VppaConsentModal.swift" target="_blank" rel="noopener">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-5 4 5 4M16 8l5 4-5 4"/></svg></span>
+          <span class="txt"><span class="t">tvOS <span class="tag ext">SwiftUI</span></span><span class="d">Native focus engine, default focus on Agree, blur via material.</span></span>
+          <span class="path">platforms/tvos/…swift</span>
+          <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+        <a class="row" href="https://github.com/mecrocamo/starman-mary/blob/main/vppa-consent-modal/platforms/android-tv/VppaConsentModal.kt" target="_blank" rel="noopener">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-5 4 5 4M16 8l5 4-5 4"/></svg></span>
+          <span class="txt"><span class="t">Android TV <span class="tag ext">Compose</span></span><span class="d">Compose for TV, FocusRequester on Agree, RenderEffect blur.</span></span>
+          <span class="path">platforms/android-tv/…kt</span>
+          <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+        <a class="row" href="https://github.com/mecrocamo/starman-mary/blob/main/vppa-consent-modal/platforms/roku/VppaConsentModal.xml" target="_blank" rel="noopener">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-5 4 5 4M16 8l5 4-5 4"/></svg></span>
+          <span class="txt"><span class="t">Roku <span class="tag ext">SceneGraph + BrightScript</span></span><span class="d">XML tree plus D-pad script. Always Blur=No — Roku can't blur a backdrop.</span></span>
+          <span class="path">platforms/roku/…xml · .brs</span>
+          <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Token build -->
+    <div class="group">
+      <h2>Token build (generated)</h2>
+      <div class="list">
+        <a class="row" href="https://github.com/mecrocamo/starman-mary/blob/main/vppa-consent-modal/style-dictionary/README.md" target="_blank" rel="noopener">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 8l7-5 7 5M5 16l7 5 7-5"/></svg></span>
+          <span class="txt"><span class="t">How the build works</span><span class="d">Style Dictionary turns tokens.json into per-platform constants. <span class="mono">npm install &amp;&amp; npm run build</span>.</span></span>
+          <span class="path">style-dictionary/</span>
+          <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+        <a class="row" href="https://github.com/mecrocamo/starman-mary/blob/main/vppa-consent-modal/style-dictionary/build/css/tokens.css" target="_blank" rel="noopener">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M9 9l-2 3 2 3M15 9l2 3-2 3"/></svg></span>
+          <span class="txt"><span class="t">Generated output</span><span class="d">CSS variables, iOS UIColor, Android colors, and a neutral flat JSON.</span></span>
+          <span class="path">build/</span>
+          <span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+      </div>
+    </div>
+
+    <div class="note">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5" stroke-linecap="round"/></svg>
+      <div>The <b>live demo</b> and <b>Browse the folder</b> links resolve once this branch is on
+        <b>main</b> (what the site publishes from). Source-file links open on GitHub, which renders
+        JSON, Markdown, and code with highlighting.</div>
+    </div>
+  </div>
+
+  <footer>PBS Apps Design System · VPPA Consent Modal · source node 3692-42209</footer>
+</body>
+</html>
