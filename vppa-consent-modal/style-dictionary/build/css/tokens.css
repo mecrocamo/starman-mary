@@ -1,0 +1,29 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-primary-white: #ffffff; /** Primary / White. Primary button fill; title, body, and secondary-button text. */
+  --color-primary-pbs-blue: #2638c4; /** Primary / PBS Blue. Primary (Agree) button label color. */
+  --color-surface-modal: rgba(10, 20, 90, 0.6); /** Modal panel fill. rgb(10,20,90) at 60% alpha, layered over the blurred backdrop. */
+  --color-button-secondary-fill: rgba(255, 255, 255, 0.1); /** Secondary (Decline) button fill. White at ~10% alpha. */
+  --color-text-disclaimer: #c0cbda; /** 'A selection is required to continue.' helper text (variant only). */
+  --color-focus-ring: #ffffff; /** TV focus ring. White reads on both the white primary button and the translucent secondary button because the ring sits offset on the dark modal surface. PROPOSED — not specified in the provided Figma node. */
+  --dimension-radius-modal: 24px; /** Modal corner radius. */
+  --dimension-radius-pill: 40px; /** Button corner radius. Half the button height = fully rounded ends (Figma used 79/72 over an ~80px height, i.e. a full pill). */
+  --dimension-space-section-gap: 40px; /** Vertical gap between the text block and the button row (and between title and body). */
+  --dimension-space-paragraph-gap: 14px; /** Gap between body paragraphs. */
+  --dimension-space-button-gap: 40px; /** Horizontal gap between the two buttons. */
+  --dimension-padding-modal-x: 80px; /** Modal horizontal padding. */
+  --dimension-padding-modal-y: 60px; /** Modal vertical padding. */
+  --dimension-padding-button-x: 48px; /** Button horizontal padding (min). NORMALIZED from Figma's 71/65 to one value; buttons flex to share the row width equally. */
+  --dimension-size-content-width: 946px; /** Max width of the content column (title + body + buttons). */
+  --dimension-size-button-row-width: 789px; /** Width of the two-button row; each button flexes to 50%. */
+  --dimension-size-button-height: 80px; /** Button height. NORMALIZED: Figma showed 80 (Agree) / 74 (Decline); the component uses one height. */
+  --effect-blur-backdrop: 15px; /** Backdrop blur radius applied behind the modal when Blur=Yes. Set Blur=No (0) on platforms without backdrop blur (notably Roku). */
+  --motion-focus-scale: 1.06; /** Scale multiplier applied to a focused button. PROPOSED TV focus spec. */
+  --motion-focus-ring-width: 4px; /** Focus ring thickness. PROPOSED. */
+  --motion-focus-ring-offset: 4px; /** Gap between button edge and focus ring. PROPOSED. */
+  --motion-focus-duration: 150ms; /** Focus transition duration. PROPOSED. */
+  --color-text-on-surface: var(--color-primary-white); /** Title and body copy on the modal surface. */
+}

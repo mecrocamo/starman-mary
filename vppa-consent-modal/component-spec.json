@@ -1,0 +1,159 @@
+{
+  "$description": "Platform-neutral component specification for the PBS VPPA Consent Modal. Describes structure, content, states, behavior, and token bindings independently of any framework. Each platform (HTML smart TV, tvOS, Android TV, Roku) implements this tree with native views and binds each style property to the token named in tokens.json. See PORTING.md.",
+  "component": "VppaConsentModal",
+  "source": {
+    "figma": "https://www.figma.com/design/VVoljCt5vEbj0qCSLv2SgY/Apps-Design-System?node-id=3692-42209",
+    "device": "CTV",
+    "scale": "OTT 1920 (1080p / 10-foot UI)"
+  },
+
+  "purpose": "Presents a Video Privacy Protection Act (VPPA) consent prompt as a modal overlay before the app may share viewing history with third parties. Collects explicit consent via Agree / Decline.",
+
+  "whenToUse": [
+    "Before sharing a user's viewing history or related information with third parties, service providers, or a local station.",
+    "On first launch or sign-in when VPPA consent has not yet been collected.",
+    "When prior consent has expired and must be re-collected."
+  ],
+
+  "variants": {
+    "device": { "values": ["Mobile", "Tablet", "CTV"], "thisSpec": "CTV" },
+    "blur":   { "values": ["Yes", "No"], "default": "Yes", "note": "Yes = backdrop behind the modal is blurred to focus attention. Use No where the platform cannot blur a backdrop (e.g. Roku)." },
+    "disclaimer": { "type": "boolean", "default": false, "note": "Shows 'A selection is required to continue.' Only used if the app forbids dismissing without a choice. Current product allows dismissal, so this stays off." }
+  },
+
+  "structure": {
+    "node": "modal",
+    "role": "dialog",
+    "aria": { "modal": true, "labelledby": "title", "describedby": "body" },
+    "style": {
+      "fill": "color.surface.modal",
+      "cornerRadius": "dimension.radius.modal",
+      "paddingX": "dimension.padding.modalX",
+      "paddingY": "dimension.padding.modalY",
+      "shadow": "effect.shadow.modal",
+      "backdropBlur": "effect.blur.backdrop (when blur=Yes)"
+    },
+    "layout": { "direction": "column", "align": "center", "justify": "center" },
+    "children": [
+      {
+        "node": "content",
+        "style": { "maxWidth": "dimension.size.contentWidth" },
+        "layout": { "direction": "column", "align": "center", "gap": "dimension.space.sectionGap" },
+        "children": [
+          {
+            "node": "text",
+            "layout": { "direction": "column", "align": "center", "gap": "dimension.space.sectionGap" },
+            "children": [
+              {
+                "node": "title",
+                "id": "title",
+                "type": "text",
+                "typography": "typography.title",
+                "color": "color.text.onSurface",
+                "align": "center",
+                "content": "Your Privacy Matters to Us"
+              },
+              {
+                "node": "body",
+                "id": "body",
+                "type": "richText",
+                "typography": "typography.body",
+                "color": "color.text.onSurface",
+                "align": "left",
+                "paragraphGap": "dimension.space.paragraphGap",
+                "content": [
+                  "By clicking “Agree” below, you consent under the Video Privacy Protection Act (VPPA) to PBS’s potential sharing of your viewing history and related information with third parties, like its service providers or your local station including to personalize your digital experience and to ensure that our websites and apps function properly. Consent is not required to view our content, but some functionality may be unavailable to you if you decline consent.",
+                  "This VPPA consent is separate from your cookie consent preference and applies only to the viewing information discussed above.",
+                  "You can change your selection at any time by visiting Privacy Settings."
+                ]
+              }
+            ]
+          },
+          {
+            "node": "buttons",
+            "type": "buttonRow",
+            "layout": { "direction": "row", "align": "center", "justify": "center", "gap": "dimension.space.buttonGap", "distribute": "equal" },
+            "maxWidth": "dimension.size.buttonRowWidth",
+            "children": [
+              {
+                "node": "agree",
+                "type": "button",
+                "variant": "primary",
+                "action": "consentGranted",
+                "defaultFocus": true,
+                "label": "Agree",
+                "style": { "fill": "color.primary.white", "labelColor": "color.primary.pbsBlue" }
+              },
+              {
+                "node": "decline",
+                "type": "button",
+                "variant": "secondary",
+                "action": "consentDeclined",
+                "label": "Decline",
+                "style": { "fill": "color.button.secondaryFill", "labelColor": "color.primary.white" }
+              }
+            ]
+          },
+          {
+            "node": "disclaimer",
+            "type": "text",
+            "visibleWhen": "disclaimer == true",
+            "typography": "typography.disclaimer",
+            "color": "color.text.disclaimer",
+            "align": "center",
+            "content": "A selection is required to continue."
+          }
+        ]
+      }
+    ]
+  },
+
+  "button": {
+    "shared": {
+      "height": "dimension.size.buttonHeight",
+      "cornerRadius": "dimension.radius.pill",
+      "paddingX": "dimension.padding.buttonX",
+      "typography": "typography.buttonLabel",
+      "labelAlign": "center"
+    },
+    "states": {
+      "default": { "description": "Resting appearance per variant fill/label color." },
+      "focused": {
+        "description": "TV focus (D-pad). PROPOSED spec — the provided Figma node does not define focus visuals; confirm against the design system's focus states.",
+        "scale": "motion.focus.scale",
+        "ring": { "color": "color.focus.ring", "width": "motion.focus.ringWidth", "offset": "motion.focus.ringOffset" },
+        "transitionDuration": "motion.focus.duration"
+      },
+      "pressed": { "description": "Momentary press feedback on Select/OK. Optional: reuse focused with a brief scale-down." },
+      "disabled": { "description": "Not used in this component." }
+    }
+  },
+
+  "focusAndInput": {
+    "model": "spatial (D-pad / remote). Exactly one focusable element is focused at a time.",
+    "initialFocus": "agree",
+    "navigation": {
+      "left":  "move focus agree → decline order (previous)",
+      "right": "move focus to next button",
+      "up":    "no-op (single row)",
+      "down":  "no-op (single row)"
+    },
+    "select": "Activate the focused button's action.",
+    "back": "Dismiss the modal without a choice (allowed by current product rules; if disallowed, show the disclaimer instead).",
+    "wrap": false,
+    "note": "Trap focus within the modal while open. Restore focus to the invoking element on close."
+  },
+
+  "actions": {
+    "consentGranted":  "Persist VPPA consent = true, close modal, continue.",
+    "consentDeclined": "Persist VPPA consent = false, close modal, continue (content still viewable).",
+    "dismiss":         "Close without changing stored consent."
+  },
+
+  "contentRules": [
+    "Consent copy must state what data is shared, with whom, and why, and reference the VPPA by name.",
+    "State that consent is optional and describe consequences of declining.",
+    "Mention that the selection can be changed later in Privacy Settings.",
+    "Keep copy concise but legally accurate — coordinate with legal/privacy before changing."
+  ]
+}

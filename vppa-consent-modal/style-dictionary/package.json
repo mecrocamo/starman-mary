@@ -1,0 +1,13 @@
+{
+  "name": "vppa-consent-modal-tokens",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Build per-platform constants from tokens.json (W3C DTCG) for the VPPA Consent Modal.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "style-dictionary": "^4.3.0"
+  }
+}
