@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  VppaConsentModal.xml — PBS VPPA Consent Modal for Roku (SceneGraph).
+
+  Ports component-spec.json. Roku cannot blur a backdrop, so this always renders the
+  Blur=No variant (opaque panel). Positions are absolute at the 1920x1080 (OTT 1920)
+  scale, so tokens.json dimensions map 1:1. Pill and panel corners use 9-patch Posters
+  (Roku Rectangle has no corner radius). Register "PBS Sans" via a Font node or fall
+  back to the system font at the token sizes. Match ../../vppa-modal.html.
+
+  Colors are 0xRRGGBBAA (from tokens.json):
+    panel (Blur=No)  0x141E5AFF   pbsBlue  0x2638C4FF   white     0xFFFFFFFF
+    secondary fill   0xFFFFFF1A   disclaim 0xC0CBDAFF
+-->
+<component name="VppaConsentModal" extends="Group">
+
+  <interface>
+    <field id="showDisclaimer" type="boolean" value="false" />
+    <field id="result" type="string" alwaysNotify="true" />   <!-- "agree" | "decline" | "dismiss" -->
+  </interface>
+
+  <script type="text/brightscript" uri="pkg:/components/vppa/VppaConsentModal.brs" />
+
+  <children>
+    <!-- centered on 1920x1080; panel is 1106 x 684 (content 946 + 2*80 pad-x; 564 + 2*60 pad-y) -->
+    <Poster id="panel" uri="pkg:/images/vppa/panel_r24.9.png"
+            width="1106" height="684" translation="[407,198]" />
+
+    <Group id="content" translation="[487,258]">   <!-- panel origin + [padX, padY] = [407+80, 198+60] -->
+
+      <Label id="title" text="Your Privacy Matters to Us"
+             width="946" horizAlign="center" color="0xFFFFFFFF"
+             translation="[0,0]">
+        <Font role="font" uri="pkg:/fonts/PBSSans-Bold.otf" size="48" />
+      </Label>
+
+      <!-- body: 3 paragraphs joined with blank lines; wrap within the 946 column -->
+      <Label id="body" wrap="true" width="946" color="0xFFFFFFFF"
+             lineSpacing="8" translation="[0,93]">
+        <Font role="font" uri="pkg:/fonts/PBSSans-Regular.otf" size="28" />
+      </Label>
+
+      <!-- button row (789 wide, centered under the 946 column): offset x = (946-789)/2 = 78.5 -->
+      <Group id="buttons" translation="[78,484]">
+        <Group id="agree" translation="[0,0]">
+          <Poster id="agreeFill" uri="pkg:/images/vppa/pill_white.9.png"  width="374" height="80" />
+          <Poster id="agreeRing" uri="pkg:/images/vppa/pill_ring.9.png"   width="374" height="80" visible="false" />
+          <Label  id="agreeLabel" text="Agree" width="374" height="80"
+                  horizAlign="center" vertAlign="center" color="0x2638C4FF">
+            <Font role="font" uri="pkg:/fonts/PBSSans-Bold.otf" size="32" />
+          </Label>
+        </Group>
+        <Group id="decline" translation="[415,0]">   <!-- 374 + 40 gap (rounded) -->
+          <Poster id="declineFill" uri="pkg:/images/vppa/pill_secondary.9.png" width="374" height="80" />
+          <Poster id="declineRing" uri="pkg:/images/vppa/pill_ring.9.png"      width="374" height="80" visible="false" />
+          <Label  id="declineLabel" text="Decline" width="374" height="80"
+                  horizAlign="center" vertAlign="center" color="0xFFFFFFFF">
+            <Font role="font" uri="pkg:/fonts/PBSSans-Bold.otf" size="32" />
+          </Label>
+        </Group>
+      </Group>
+
+      <Label id="disclaimer" text="A selection is required to continue."
+             width="946" horizAlign="center" color="0xC0CBDAFF"
+             visible="false" translation="[0,608]">
+        <Font role="font" uri="pkg:/fonts/PBSSans-Regular.otf" size="28" />
+      </Label>
+
+    </Group>
+  </children>
+</component>

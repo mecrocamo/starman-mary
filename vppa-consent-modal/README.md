@@ -37,6 +37,13 @@ Kotlin/Compose, and BrightScript/SceneGraph are all different. So the portable
 | `component-spec.json` | Structure, states, behavior |
 | `vppa-modal.html` | Runnable HTML-TV reference + visual gold standard |
 | `PORTING.md` | tvOS / Android TV / Roku mapping + snippets |
+| `platforms/tvos/VppaConsentModal.swift` | tvOS (SwiftUI) implementation |
+| `platforms/android-tv/VppaConsentModal.kt` | Android TV (Compose for TV) implementation |
+| `platforms/roku/VppaConsentModal.{xml,brs}` | Roku (SceneGraph + BrightScript) implementation |
+| `style-dictionary/` | Build that emits per-platform constants from `tokens.json` (`npm install && npm run build`) |
+
+A shareable, interactive version of the reference is published as a Claude Artifact —
+see the link shared alongside this package (open it, use ← → and Enter).
 
 ## How to use it
 

@@ -44,6 +44,9 @@ in the keydown listener (arrow keys + Enter/Back). Ship as-is, or generate the
 
 ## 3. tvOS (SwiftUI)
 
+> Full implementation: [`platforms/tvos/VppaConsentModal.swift`](platforms/tvos/VppaConsentModal.swift).
+> Generated color constants: `style-dictionary/build/ios/Colors.swift`.
+
 Map tokens to a `Tokens` enum; SwiftUI's focus engine handles D-pad natively.
 
 ```swift
@@ -94,6 +97,9 @@ struct VppaConsentModal: View {
 
 ## 4. Android TV (Jetpack Compose for TV)
 
+> Full implementation: [`platforms/android-tv/VppaConsentModal.kt`](platforms/android-tv/VppaConsentModal.kt).
+> Generated color resources: `style-dictionary/build/android/colors.xml`.
+
 Use `androidx.tv.material3`. Author in `.dp` at the 1080p scale (Android scales dp for you).
 
 ```kotlin
@@ -139,6 +145,9 @@ object T {
 ---
 
 ## 5. Roku (SceneGraph + BrightScript)
+
+> Full implementation: [`platforms/roku/VppaConsentModal.xml`](platforms/roku/VppaConsentModal.xml)
+> + [`platforms/roku/VppaConsentModal.brs`](platforms/roku/VppaConsentModal.brs).
 
 Roku has **no backdrop blur** → always render **`Blur=No`** (opaque panel). Build the
 tree in a component's `<children>` XML; drive focus in BrightScript. Roku positions in
