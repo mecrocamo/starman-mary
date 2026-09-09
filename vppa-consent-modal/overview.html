@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>*{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>VPPA Consent Modal — Overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+
+  :root{
+    /* light — blue-biased paper */
+    --bg:#EAEEF7; --surface:#FFFFFF; --surface-2:#F3F5FC;
+    --ink:#151B33; --ink-2:#48547A; --ink-3:#7C87A8;
+    --line:#DCE2F0; --line-2:#E9EDF7;
+    --accent:#2638C4; --accent-2:#4757D8; --accent-soft:#E7EAFB;
+    --shadow:0 1px 2px rgba(20,28,60,.06),0 10px 30px rgba(20,28,60,.08);
+    --ok:#127A3B; --ok-soft:#DCF2E4;
+    /* the TV screen is a committed dark surface in both themes */
+    --screen-1:#0b1e3a; --screen-2:#0a1330;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#080B16; --surface:#111830; --surface-2:#0D1428;
+      --ink:#EAEEF9; --ink-2:#A6B0CE; --ink-3:#6B7599;
+      --line:#222A46; --line-2:#1A2138;
+      --accent:#7285F4; --accent-2:#8A99F7; --accent-soft:#1B2247;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 40px rgba(0,0,0,.5);
+      --ok:#54C283; --ok-soft:#11291D;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#080B16; --surface:#111830; --surface-2:#0D1428;
+    --ink:#EAEEF9; --ink-2:#A6B0CE; --ink-3:#6B7599;
+    --line:#222A46; --line-2:#1A2138;
+    --accent:#7285F4; --accent-2:#8A99F7; --accent-soft:#1B2247;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 40px rgba(0,0,0,.5);
+    --ok:#54C283; --ok-soft:#11291D;
+  }
+
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Hanken Grotesk",system-ui,-apple-system,Segoe UI,sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 24px 56px}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+
+  /* ---------- header ---------- */
+  .head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-3);font-weight:500}
+  h1{font-size:clamp(30px,4.2vw,44px);font-weight:800;letter-spacing:-.02em;line-height:1.04;
+    margin:.34em 0 0;text-wrap:balance}
+  .lede{color:var(--ink-2);font-size:16.5px;max-width:60ch;margin:.7em 0 0}
+  .themebtn{font:inherit;font-size:13px;color:var(--ink-2);cursor:pointer;flex-shrink:0;
+    background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 13px;box-shadow:var(--shadow)}
+  .themebtn:hover{color:var(--ink);border-color:var(--ink-3)}
+
+  /* ---------- TV screen ---------- */
+  .tvblock{margin-top:30px}
+  .tv{
+    position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;
+    border-radius:16px;background:#04070f;
+    border:1px solid var(--line);
+    box-shadow:var(--shadow), inset 0 0 0 1px rgba(255,255,255,.03);
+    outline:none;cursor:pointer;
+  }
+  .tv:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+  .tv .scene{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left}
+
+  /* focus prompt overlay when the screen isn't focused */
+  .prompt{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:5;
+    display:flex;align-items:center;gap:8px;pointer-events:none;
+    font-size:12.5px;color:#cdd6ea;background:rgba(8,14,28,.62);
+    border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:6px 13px;
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+    transition:opacity .25s ease}
+  .tv.armed .prompt{opacity:0}
+  .prompt kbd{font-family:"IBM Plex Mono",monospace;font-size:11px;color:#fff;
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);
+    border-radius:5px;padding:1px 6px}
+
+  /* ---------- controls under screen ---------- */
+  .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .ctl{font:inherit;font-size:13px;font-weight:500;color:var(--ink-2);cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 13px}
+  .ctl:hover{color:var(--ink);border-color:var(--ink-3)}
+  .ctl .dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3)}
+  .ctl[aria-pressed="true"]{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+  .ctl[aria-pressed="true"] .dot{background:var(--accent)}
+  .controls .spacer{flex:1}
+  .fired{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-3)}
+  .fired b{color:var(--ok);font-weight:600}
+
+  /* ---------- spec strip ---------- */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:34px}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .panel h2{font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);
+    font-weight:600;margin:0 0 14px}
+
+  .platforms{display:flex;flex-direction:column;gap:10px}
+  .plat{display:flex;align-items:baseline;gap:10px;font-size:14px}
+  .plat .n{font-weight:600;color:var(--ink);min-width:112px}
+  .plat .d{color:var(--ink-2);font-size:13px}
+  .plat .tag{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+    letter-spacing:.04em;color:var(--accent);background:var(--accent-soft);
+    border-radius:5px;padding:2px 7px;white-space:nowrap}
+
+  .tokens{display:flex;flex-direction:column;gap:11px}
+  .tok{display:flex;align-items:center;gap:11px;font-size:13.5px}
+  .sw{width:26px;height:26px;border-radius:7px;flex-shrink:0;border:1px solid var(--line-2)}
+  .tok .lab{color:var(--ink);font-weight:500}
+  .tok .val{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3)}
+  .typ{margin-top:15px;padding-top:15px;border-top:1px solid var(--line-2);
+    display:flex;flex-direction:column;gap:7px}
+  .typ .row{display:flex;align-items:baseline;gap:10px;font-size:13px;color:var(--ink-2)}
+  .typ .row b{color:var(--ink);font-weight:700}
+  .typ .row .m{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3)}
+
+  /* ---------- notes ---------- */
+  .notes{margin-top:16px;background:var(--surface-2);border:1px solid var(--line-2);
+    border-radius:14px;padding:18px 20px}
+  .notes h2{font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);
+    font-weight:600;margin:0 0 12px}
+  .note{display:flex;gap:11px;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+  .note+.note{margin-top:11px}
+  .note .k{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--accent-soft);
+    color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;margin-top:1px}
+  .note b{color:var(--ink);font-weight:600}
+
+  footer{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+    font-size:12.5px;color:var(--ink-3)}
+  footer a{color:var(--accent);text-decoration:none;font-weight:500}
+  footer a:hover{text-decoration:underline}
+
+  @media (max-width:720px){.grid{grid-template-columns:1fr}.wrap{padding:28px 16px 44px}}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  /* ============================================================
+     THE COMPONENT — VPPA Consent Modal (values from tokens.json)
+     Scoped under .scene so page chrome can't leak in.
+     ============================================================ */
+  .scene{
+    --c-white:#FFFFFF;--c-pbs-blue:#2638C4;--c-surface-modal:rgba(10,20,90,.60);
+    --c-button-secondary:rgba(255,255,255,.10);--c-focus-ring:#FFFFFF;
+    --font-modal:"PBS Sans","Hanken Grotesk","Helvetica Neue",Arial,sans-serif;
+    font-family:var(--font-modal);
+  }
+  .scene .backdrop{position:absolute;inset:0;overflow:hidden}
+  .scene .still{position:absolute;inset:0;
+    background:
+      radial-gradient(120% 90% at 78% 22%,#ffd38a 0%,rgba(255,211,138,0) 42%),
+      radial-gradient(90% 70% at 20% 8%,#7fb2ff 0%,rgba(127,178,255,0) 46%),
+      linear-gradient(180deg,#2a4a86 0%,#1c3564 34%,#122447 60%,#0c1830 100%)}
+  .scene .ridge{position:absolute;left:0;right:0;bottom:0;height:46%;
+    background:linear-gradient(180deg,#123a2e 0%,#0c2a22 55%,#081d18 100%);
+    clip-path:polygon(0 46%,14% 30%,26% 42%,40% 20%,54% 38%,68% 16%,82% 34%,100% 22%,100% 100%,0 100%)}
+  .scene .ridge.back{opacity:.55;bottom:8%;filter:brightness(.7)}
+  .scene .scrim{position:absolute;inset:0;background:rgba(4,8,20,.38)}
+
+  .scene .modal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:60px 80px;background:var(--c-surface-modal);border-radius:24px;
+    box-shadow:0 0 20px 0 rgba(0,0,0,.25);
+    -webkit-backdrop-filter:blur(15px);backdrop-filter:blur(15px)}
+  .scene[data-blur="no"] .modal{-webkit-backdrop-filter:none;backdrop-filter:none}
+  .scene[data-blur="no"] .scrim{background:rgba(4,8,20,.62)}
+
+  .scene .cont{display:flex;flex-direction:column;align-items:center;gap:40px;width:946px}
+  .scene .txt{display:flex;flex-direction:column;align-items:center;gap:40px;width:100%;color:#fff}
+  .scene .title{font-size:48px;font-weight:700;line-height:1.4;text-align:center;white-space:nowrap;margin:0}
+  .scene .copy{font-size:28px;font-weight:400;line-height:1.3;text-align:left;width:100%}
+  .scene .copy p{margin:0}
+  .scene .copy p+p{margin-top:14px}
+  .scene .btns{display:flex;gap:40px;align-items:center;justify-content:center;width:789px}
+  .scene .btn{flex:1 1 0;min-width:0;height:80px;display:inline-flex;align-items:center;justify-content:center;
+    padding:0 48px;border:0;border-radius:40px;cursor:pointer;font-family:inherit;
+    font-size:32px;font-weight:700;line-height:1.4;white-space:nowrap;
+    transition:transform .15s ease,box-shadow .15s ease;outline:none}
+  .scene .btn--primary{background:#fff;color:#2638C4}
+  .scene .btn--secondary{background:rgba(255,255,255,.10);color:#fff}
+  .scene .btn.is-focused{transform:scale(1.06);outline:4px solid var(--c-focus-ring);
+    outline-offset:4px;box-shadow:0 0 32px 0 rgba(255,255,255,.28)}
+  .scene .disc{font-size:28px;font-weight:400;line-height:1.3;color:#C0CBDA;text-align:center;width:100%;margin:0}
+  .scene .disc[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+    <a href="./" style="display:inline-flex;align-items:center;gap:7px;font:500 13px/1 'IBM Plex Mono',ui-monospace,monospace;color:var(--ink-3);text-decoration:none;margin-bottom:20px">← VPPA package</a>
+
+  <header class="head">
+    <div>
+      <div class="eyebrow">PBS Apps Design System · CTV</div>
+      <h1>VPPA Consent Modal</h1>
+      <p class="lede">The connected-TV privacy-consent overlay, built once as tokens plus a
+        component spec that port to HTML smart TVs, tvOS, Android TV, and Roku. This is the
+        live reference — the visual gold standard every platform matches.</p>
+    </div>
+    <button class="themebtn" id="themeBtn" type="button">◑ Theme</button>
+  </header>
+
+  <section class="tvblock">
+    <div class="tv" id="tv" tabindex="0" role="group"
+         aria-label="Live VPPA consent modal — click, then use arrow keys and Enter">
+      <div class="scene" id="scene" data-blur="yes" aria-hidden="false">
+        <div class="backdrop">
+          <div class="still"></div>
+          <div class="ridge back"></div>
+          <div class="ridge"></div>
+        </div>
+        <div class="scrim"></div>
+
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title" aria-describedby="m-body">
+          <div class="cont">
+            <div class="txt">
+              <h2 class="title" id="m-title">Your Privacy Matters to Us</h2>
+              <div class="copy" id="m-body">
+                <p>By clicking &ldquo;Agree&rdquo; below, you consent under the Video Privacy Protection Act (VPPA) to PBS&rsquo;s potential sharing of your viewing history and related information with third parties, like its service providers or your local station including to personalize your digital experience and to ensure that our websites and apps function properly. Consent is not required to view our content, but some functionality may be unavailable to you if you decline consent.</p>
+                <p>This VPPA consent is separate from your cookie consent preference and applies only to the viewing information discussed above.</p>
+                <p>You can change your selection at any time by visiting Privacy Settings.</p>
+              </div>
+            </div>
+            <div class="btns" role="group" aria-label="Consent choice">
+              <button class="btn btn--primary"   type="button" data-action="Agree — consent granted">Agree</button>
+              <button class="btn btn--secondary" type="button" data-action="Decline — consent declined">Decline</button>
+            </div>
+            <p class="disc" id="m-disc" hidden>A selection is required to continue.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="prompt" id="prompt">
+        <span>Click the screen, then</span><kbd>←</kbd><kbd>→</kbd><span>move ·</span><kbd>Enter</kbd><span>select</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="ctl" id="blurCtl" type="button" aria-pressed="true"><span class="dot"></span>Backdrop blur</button>
+      <button class="ctl" id="discCtl" type="button" aria-pressed="false"><span class="dot"></span>&ldquo;Selection required&rdquo; text</button>
+      <span class="spacer"></span>
+      <span class="fired" id="fired">Last action: <b id="firedVal">—</b></span>
+    </div>
+  </section>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>Ports to four TV platforms</h2>
+      <div class="platforms">
+        <div class="plat"><span class="n">HTML smart TV</span><span class="d">Tizen · webOS · Vizio</span><span class="tag">reference</span></div>
+        <div class="plat"><span class="n">tvOS</span><span class="d">SwiftUI · focus engine</span><span class="tag">.swift</span></div>
+        <div class="plat"><span class="n">Android TV</span><span class="d">Compose for TV</span><span class="tag">.kt</span></div>
+        <div class="plat"><span class="n">Roku</span><span class="d">SceneGraph · no blur → Blur=No</span><span class="tag">.xml · .brs</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Core tokens</h2>
+      <div class="tokens">
+        <div class="tok"><span class="sw" style="background:#2638C4"></span><span class="lab">Primary / PBS Blue</span><span class="val">#2638C4</span></div>
+        <div class="tok"><span class="sw" style="background:#FFFFFF"></span><span class="lab">Primary / White</span><span class="val">#FFFFFF</span></div>
+        <div class="tok"><span class="sw" style="background:linear-gradient(#0A145A,#0A145A) padding-box, repeating-conic-gradient(#c9cede 0 25%, #eef 0 50%) border-box;background-size:100%, 10px 10px;opacity:.92"></span><span class="lab">Surface (60%)</span><span class="val">#0A145A99</span></div>
+      </div>
+      <div class="typ">
+        <div class="row"><b>Aa</b> Title<span class="m">PBS Sans Bold · 48</span></div>
+        <div class="row"><b style="font-weight:400">Aa</b> Body<span class="m">PBS Sans Regular · 28</span></div>
+        <div class="row"><b>Aa</b> Button<span class="m">PBS Sans Bold · 32</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h2>Two things to confirm with design</h2>
+    <div class="note"><span class="k">1</span><div><b>Focus state.</b> The Figma node doesn&rsquo;t specify a D-pad focus appearance, but every TV platform needs one. The reference proposes a white ring + 1.06&times; scale over 150 ms. Confirm against the system&rsquo;s focus tokens.</div></div>
+    <div class="note"><span class="k">2</span><div><b>Button normalization.</b> Figma placed Agree and Decline as separate instances with slightly different height, label size, radius, and padding. The component uses one shared button geometry so the pair matches. Confirm that&rsquo;s intended.</div></div>
+  </div>
+
+  <footer>
+    <span>Source: PBS Apps Design System · node 3692-42209 · OTT 1920 scale</span>
+    <a href="https://www.figma.com/design/VVoljCt5vEbj0qCSLv2SgY/Apps-Design-System?node-id=3692-42209" target="_blank" rel="noopener">Open in Figma →</a>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* scale the 1920x1080 scene to the TV screen box */
+  var tv = document.getElementById("tv");
+  var scene = document.getElementById("scene");
+  function fit(){
+    var s = tv.clientWidth / 1920;
+    scene.style.transform = "scale(" + s + ")";
+  }
+  if("ResizeObserver" in window){ new ResizeObserver(fit).observe(tv); }
+  window.addEventListener("resize", fit); fit();
+
+  /* spatial (D-pad) focus model within the screen */
+  var buttons = Array.prototype.slice.call(scene.querySelectorAll(".btn"));
+  var index = 0;
+  function render(){
+    buttons.forEach(function(b,i){ b.classList.toggle("is-focused", i===index); });
+  }
+  function activate(){
+    document.getElementById("firedVal").textContent = buttons[index].getAttribute("data-action");
+  }
+  function move(d){ var n=index+d; if(n<0||n>=buttons.length) return; index=n; render(); }
+  render();
+
+  /* arm the screen on focus/click so arrow keys don't hijack page scroll */
+  tv.addEventListener("focus", function(){ tv.classList.add("armed"); });
+  tv.addEventListener("blur",  function(){ tv.classList.remove("armed"); });
+  tv.addEventListener("click", function(){ tv.focus(); });
+
+  tv.addEventListener("keydown", function(e){
+    switch(e.key){
+      case "ArrowLeft":  move(-1); e.preventDefault(); break;
+      case "ArrowRight": move(1);  e.preventDefault(); break;
+      case "ArrowUp": case "ArrowDown": e.preventDefault(); break;
+      case "Enter": case " ": activate(); e.preventDefault(); break;
+    }
+  });
+
+  /* pointer support */
+  buttons.forEach(function(b,i){
+    b.addEventListener("mouseenter", function(){ index=i; render(); });
+    b.addEventListener("click", function(ev){ ev.stopPropagation(); tv.focus(); index=i; render(); activate(); });
+  });
+
+  /* variant controls */
+  var blurCtl = document.getElementById("blurCtl");
+  blurCtl.addEventListener("click", function(){
+    var on = scene.getAttribute("data-blur")==="yes";
+    scene.setAttribute("data-blur", on?"no":"yes");
+    blurCtl.setAttribute("aria-pressed", String(!on));
+  });
+  var discCtl = document.getElementById("discCtl");
+  var disc = document.getElementById("m-disc");
+  discCtl.addEventListener("click", function(){
+    disc.hidden = !disc.hidden;
+    discCtl.setAttribute("aria-pressed", String(!disc.hidden));
+  });
+
+  /* theme toggle */
+  var tb = document.getElementById("themeBtn");
+  function cur(){
+    var t=document.documentElement.getAttribute("data-theme");
+    if(t) return t;
+    return (window.matchMedia && matchMedia("(prefers-color-scheme:dark)").matches)?"dark":"light";
+  }
+  try{ var s=localStorage.getItem("vppa-theme"); if(s) document.documentElement.setAttribute("data-theme",s); }catch(e){}
+  tb.addEventListener("click", function(){
+    var n=cur()==="dark"?"light":"dark";
+    document.documentElement.setAttribute("data-theme",n);
+    try{ localStorage.setItem("vppa-theme",n); }catch(e){}
+  });
+})();
+</script>
+
+</body>
+</html>
